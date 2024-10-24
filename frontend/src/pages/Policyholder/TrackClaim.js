@@ -18,11 +18,11 @@ const TrackClaim = () => {
   }, []);
 
   return (
-    <div>
-      <h2>Track Your Claims</h2>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+    <div className="container mt-5">
+      <h2 className="text-center">Track Your Claims</h2>
+      {error && <p className="alert alert-danger">{error}</p>}
       {claims.length > 0 ? (
-        <table>
+        <table className="table table-striped table-bordered mt-4">
           <thead>
             <tr>
               <th>Policy Number</th>
@@ -43,7 +43,7 @@ const TrackClaim = () => {
           </tbody>
         </table>
       ) : (
-        <p>No claims found.</p>
+        <p className="alert alert-info">No claims found.</p>
       )}
     </div>
   );
