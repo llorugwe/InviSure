@@ -5,16 +5,25 @@ const InsurancePlan = require('../models/InsurancePlan');
 const submitClaim = async (req, res) => {
     const { planId, description, amount } = req.body;
     try {
+        // Check if the plan ID exists
+        const insurancePlan = await InsurancePlan.findById(planId);
+        if (!insurancePlan) {
+            return res.status(404).json({ message: 'Insurance plan not found' });
+        }
+
+        // Create a new claim
         const newClaim = new Claim({
-            userId: req.user.userId,  // Assuming the user ID is stored in the JWT payload
+            userId: req.user.userId,  // Assuming user ID is stored in the JWT payload
             planId,
             description,
             amount
         });
         await newClaim.save();
+
         res.status(201).json(newClaim);
     } catch (err) {
-        res.status(500).json({ message: 'Server error' });
+        console.error('Error during claim submission:', err);  // Log the error
+        res.status(500).json({ message: 'Server error', error: err.message });
     }
 };
 
@@ -24,18 +33,24 @@ const getUserClaims = async (req, res) => {
         const claims = await Claim.find({ userId: req.user.userId });
         res.status(200).json(claims);
     } catch (err) {
-        res.status(500).json({ message: 'Server error' });
+        console.error('Error retrieving user claims:', err);  // Log the error
+        res.status(500).json({ message: 'Server error', error: err.message });
     }
 };
 
 // Admin: Retrieve all claims
 const getAllClaims = async (req, res) => {
-    if (req.user.role !== 'admin') return res.status(403).json({ message: 'Access denied' });
+    if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: 'Access denied' });
+    }
     try {
-        const claims = await Claim.find().populate('userId', 'name').populate('planId', 'name');
+        const claims = await Claim.find()
+            .populate('userId', 'name')
+            .populate('planId', 'name');
         res.status(200).json(claims);
     } catch (err) {
-        res.status(500).json({ message: 'Server error' });
+        console.error('Error retrieving all claims:', err);  // Log the error
+        res.status(500).json({ message: 'Server error', error: err.message });
     }
 };
 
@@ -43,14 +58,26 @@ const getAllClaims = async (req, res) => {
 const updateClaimStatus = async (req, res) => {
     const { claimId } = req.params;
     const { status } = req.body;  // Status should be either 'approved' or 'rejected'
-    
-    if (req.user.role !== 'admin') return res.status(403).json({ message: 'Access denied' });
+
+    if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: 'Access denied' });
+    }
+
     try {
+        // Ensure valid status
+        if (!['approved', 'rejected'].includes(status)) {
+            return res.status(400).json({ message: 'Invalid status value' });
+        }
+
         const updatedClaim = await Claim.findByIdAndUpdate(claimId, { status }, { new: true });
-        if (!updatedClaim) return res.status(404).json({ message: 'Claim not found' });
+        if (!updatedClaim) {
+            return res.status(404).json({ message: 'Claim not found' });
+        }
+
         res.status(200).json(updatedClaim);
     } catch (err) {
-        res.status(500).json({ message: 'Server error' });
+        console.error('Error updating claim status:', err);  // Log the error
+        res.status(500).json({ message: 'Server error', error: err.message });
     }
 };
 

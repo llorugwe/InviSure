@@ -1,13 +1,23 @@
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
+const cors = require('cors'); // Import CORS
+
 const authRoutes = require('./routes/auth'); // Existing auth routes
 const insurancePlanRoutes = require('./routes/insurancePlans'); // Existing insurance plan routes
 const userRoutes = require('./routes/user'); // User routes for registration and login
 const premiumRoutes = require('./routes/premium'); // New premium calculation routes
-const claimsRoutes = require('./routes/claims');
+const claimsRoutes = require('./routes/claims'); // Claims routes
 
 const app = express();
+
+// Enable CORS for requests from http://localhost:3000
+app.use(cors({
+    origin: 'http://localhost:3000', // Allow only frontend origin
+    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Specify allowed methods
+    allowedHeaders: ['Content-Type', 'Authorization'] // Specify allowed headers
+}));
+
 app.use(express.json()); // Middleware to parse JSON requests
 
 // Connect to MongoDB
@@ -22,7 +32,7 @@ app.use('/auth', authRoutes); // Auth routes
 app.use('/user', userRoutes); // User routes for registration and login
 app.use('/insurance-plans', insurancePlanRoutes); // Insurance plan routes
 app.use('/premium', premiumRoutes); // Premium calculation routes
-app.use('/claims', claimsRoutes);
+app.use('/claims', claimsRoutes); // Claims routes
 
 // Start the server
 const PORT = process.env.PORT || 5000;

@@ -1,8 +1,24 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:5000/api',  // Replace with your backend API base URL
+  baseURL: 'http://localhost:5000',  // Base URL for the backend
 });
+
+// Add a request interceptor to include the token in all requests if available
+api.interceptors.request.use(
+  (config) => {
+    // Get the token from localStorage
+    const token = localStorage.getItem('token');
+    if (token) {
+      // Add the Authorization header with the token
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
 // Login function
 export const login = async (email, password) => {
