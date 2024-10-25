@@ -1,16 +1,18 @@
-import Header from './components/Header';
+import Header from './components/Header'; 
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import HomePage from './pages/Policyholder/HomePage';
 import AdminDashboard from './pages/Admin/AdminDashboard';
 import SubmitClaim from './pages/Policyholder/SubmitClaim';
-import TrackClaim from './pages/Policyholder/TrackClaim';  // Import the new TrackClaim component
-import ManageClaims from './pages/Admin/ManageClaims';    // Import the new ManageClaims component
+import TrackClaim from './pages/Policyholder/TrackClaim';
+import ManageClaims from './pages/Admin/ManageClaims';
+import Login from './pages/Auth/Login';
+import Register from './pages/Auth/Register';
 
 function App() {
   return (
     <Router>
-      <Header />  {/* Add the header here */}
+      <Header />  {/* Header for navigation */}
       <div className="App">
         <Routes>
           <Route path="/" element={<HomePage />} />
@@ -18,6 +20,8 @@ function App() {
           <Route path="/submit-claim" element={<SubmitClaim />} />
           <Route path="/track-claim" element={<TrackClaim />} />
           <Route path="/admin/manage-claims" element={<ManageClaims />} />
+          <Route path="/login" element={<Login />} />            {/* Route for Login */}
+          <Route path="/register" element={<Register />} />      {/* Route for Register */}
         </Routes>
       </div>
     </Router>

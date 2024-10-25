@@ -4,6 +4,32 @@ const api = axios.create({
   baseURL: 'http://localhost:5000/api',  // Replace with your backend API base URL
 });
 
+// Login function
+export const login = async (email, password) => {
+  try {
+    const response = await api.post('/auth/login', { email, password });
+    // Store the token in localStorage
+    localStorage.setItem('token', response.data.token);
+    return response.data;
+  } catch (error) {
+    console.error('Error during login:', error);
+    throw error;
+  }
+};
+
+// Register function
+export const register = async (userData) => {
+  try {
+    const response = await api.post('/auth/register', userData);
+    // Store the token in localStorage
+    localStorage.setItem('token', response.data.token);
+    return response.data;
+  } catch (error) {
+    console.error('Error during registration:', error);
+    throw error;
+  }
+};
+
 // Submit a new claim
 export const submitClaim = async (claimData) => {
   try {
