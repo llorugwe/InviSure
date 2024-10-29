@@ -6,14 +6,18 @@ const Register = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState(null);
+  const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+    setMessage('');
     try {
       await register({ name, email, password });
-      navigate('/');  // Redirect to home page after registration
+      setMessage('Registration successful! Please check your email for verification.');
+      setTimeout(() => navigate('/login'), 5000);  // Redirect after 5 seconds
     } catch (err) {
       setError('Registration failed. Please try again.');
     }
@@ -22,6 +26,7 @@ const Register = () => {
   return (
     <div className="container mt-5">
       <h2>Register</h2>
+      {message && <p className="alert alert-success">{message}</p>}
       {error && <p className="alert alert-danger">{error}</p>}
       <form onSubmit={handleSubmit}>
         <div className="form-group">

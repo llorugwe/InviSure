@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { login } from '../../services/claimsService';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -11,8 +11,18 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await login(email, password);
-      navigate('/');  // Redirect to home page upon successful login
+      // Call the login function and retrieve the role from the response
+      const response = await login(email, password);
+      const { role } = response; // Assume response contains 'role' from the backend
+
+      // Redirect based on user role
+      if (role === 'admin') {
+        navigate('/admin');
+      } else if (role === 'policyholder') {
+        navigate('/dashboard');
+      } else {
+        navigate('/'); // Default redirect if role is unknown
+      }
     } catch (err) {
       setError('Login failed. Please check your email and password.');
     }
@@ -45,6 +55,11 @@ const Login = () => {
         </div>
         <button type="submit" className="btn btn-primary mt-3">Login</button>
       </form>
+      {/* Forgot Password Link */}
+      <p className="mt-3">
+        Forgot your password?{' '}
+        <Link to="/forgot-password">Reset it here</Link>
+      </p>
     </div>
   );
 };
