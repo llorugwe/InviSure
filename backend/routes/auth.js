@@ -2,40 +2,32 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const { 
+    registerUser, 
+    verifyEmail, 
+    loginUser, 
+    requestPasswordReset, 
+    resetPassword, 
+    refreshAccessToken 
+} = require('../controllers/authController');
 const router = express.Router();
 
-// Registration route
-router.post('/register', async (req, res) => {
-    const { name, email, password } = req.body;
-    try {
-        const existingUser = await User.findOne({ email });
-        if (existingUser) return res.status(400).json({ message: 'User already exists' });
+// Registration route with email verification
+router.post('/register', registerUser);
 
-        const user = new User({ name, email, password });
-        await user.save();
-
-        const token = jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
-        res.status(201).json({ token });
-    } catch (err) {
-        res.status(500).json({ message: 'Server error' });
-    }
-});
+// Email verification route
+router.get('/verify/:token', verifyEmail);
 
 // Login route
-router.post('/login', async (req, res) => {
-    const { email, password } = req.body;
-    try {
-        const user = await User.findOne({ email });
-        if (!user) return res.status(400).json({ message: 'Invalid credentials' });
+router.post('/login', loginUser);
 
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) return res.status(400).json({ message: 'Invalid credentials' });
+// Request password reset (sends email with token)
+router.post('/request-password-reset', requestPasswordReset);
 
-        const token = jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
-        res.status(200).json({ token });
-    } catch (err) {
-        res.status(500).json({ message: 'Server error' });
-    }
-});
+// Reset password using the token provided in email
+router.post('/reset-password', resetPassword);
+
+// Refresh token route for generating a new access token
+router.post('/refresh-token', refreshAccessToken);
 
 module.exports = router;

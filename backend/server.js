@@ -1,13 +1,16 @@
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
-const cors = require('cors'); // Import CORS
+const cors = require('cors');
+const path = require('path'); // For serving static files
 
-const authRoutes = require('./routes/auth'); // Existing auth routes
-const insurancePlanRoutes = require('./routes/insurancePlans'); // Existing insurance plan routes
-const userRoutes = require('./routes/user'); // User routes for registration and login
-const premiumRoutes = require('./routes/premium'); // New premium calculation routes
-const claimsRoutes = require('./routes/claims'); // Claims routes
+// Import routes
+const authRoutes = require('./routes/auth');             // Auth routes
+const insurancePlanRoutes = require('./routes/insurancePlans'); // Insurance plan routes
+const userRoutes = require('./routes/user');             // User routes for registration, login, and dashboard
+const premiumRoutes = require('./routes/premium');       // Premium calculation routes
+const claimsRoutes = require('./routes/claims');         // Claims routes for submission, tracking, and admin functions
+const adminRoutes = require('./routes/adminRoutes');     // New admin routes for dashboard metrics
 
 const app = express();
 
@@ -18,7 +21,11 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization'] // Specify allowed headers
 }));
 
-app.use(express.json()); // Middleware to parse JSON requests
+// Middleware to parse JSON requests
+app.use(express.json());
+
+// Serve uploaded files statically from the 'uploads' directory
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_URL, {
@@ -27,12 +34,13 @@ mongoose.connect(process.env.MONGO_URL, {
 }).then(() => console.log('MongoDB connected'))
   .catch((err) => console.error('MongoDB connection error:', err));
 
-// Routes
-app.use('/auth', authRoutes); // Auth routes
-app.use('/user', userRoutes); // User routes for registration and login
-app.use('/insurance-plans', insurancePlanRoutes); // Insurance plan routes
-app.use('/premium', premiumRoutes); // Premium calculation routes
-app.use('/claims', claimsRoutes); // Claims routes
+// Define routes
+app.use('/auth', authRoutes);                   // Authentication routes (register, login)
+app.use('/user', userRoutes);                   // User routes (dashboard, account management)
+app.use('/insurance-plans', insurancePlanRoutes); // Insurance plans CRUD routes
+app.use('/premium', premiumRoutes);             // Premium calculation routes
+app.use('/claims', claimsRoutes);               // Claims submission, tracking, admin routes
+app.use('/admin', adminRoutes);                 // New admin metrics routes for dashboard
 
 // Start the server
 const PORT = process.env.PORT || 5000;
