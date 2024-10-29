@@ -7,22 +7,23 @@ const bcrypt = require('bcrypt');
 // Token generation
 const generateVerificationToken = () => crypto.randomBytes(32).toString('hex');
 
+// Configure the email transporter
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+    }
+});
+
 // Send verification email
 const sendVerificationEmail = async (email, token) => {
     try {
-        const transporter = nodemailer.createTransport({
-            service: 'Gmail',
-            auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS
-            }
-        });
-
         const mailOptions = {
             from: process.env.EMAIL_USER,
             to: email,
             subject: 'Verify Your InviSure Account',
-            text: `Please verify your account by clicking this link: ${process.env.BASE_URL}/verify/${token}`
+            text: `Please verify your account by clicking this link: ${process.env.BASE_URL}/auth/verify/${token}`
         };
 
         console.log(`Sending verification email to ${email}`);
@@ -118,8 +119,19 @@ const loginUser = async (req, res) => {
             return res.status(400).json({ message: 'Invalid credentials' });
         }
 
-        const accessToken = jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '15m' });
-        const refreshToken = jwt.sign({ userId: user._id }, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d' });
+        console.log("JWT_SECRET:", process.env.JWT_SECRET); // Debugging line
+        console.log("JWT_REFRESH_SECRET:", process.env.JWT_REFRESH_SECRET); // Debugging line
+        
+        const accessToken = jwt.sign(
+            { userId: user._id, role: user.role },
+            process.env.JWT_SECRET,
+            { expiresIn: '15m' }
+        );
+        const refreshToken = jwt.sign(
+            { userId: user._id },
+            process.env.JWT_REFRESH_SECRET,
+            { expiresIn: '7d' }
+        );
 
         console.log('Login successful');
         res.status(200).json({ accessToken, refreshToken, role: user.role }); // Including role in the response
@@ -196,7 +208,11 @@ const refreshAccessToken = async (req, res) => {
     try {
         console.log('Verifying refresh token...');
         const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
-        const accessToken = jwt.sign({ userId: decoded.userId, role: decoded.role }, process.env.JWT_SECRET, { expiresIn: '15m' });
+        const accessToken = jwt.sign(
+            { userId: decoded.userId, role: decoded.role },
+            process.env.JWT_SECRET,
+            { expiresIn: '15m' }
+        );
 
         console.log('Access token refreshed successfully');
         res.status(200).json({ accessToken });
