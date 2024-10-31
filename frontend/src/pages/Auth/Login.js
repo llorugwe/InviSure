@@ -11,22 +11,29 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      console.log("Attempting to log in...");  // Log when login starts
       const response = await login(email, password);
+      console.log("Login response:", response);  // Log the response from the server
+  
       const { role, accessToken } = response;
   
-      // Save role and token to localStorage
+      // Store the token and role
       localStorage.setItem('accessToken', accessToken);
-      localStorage.setItem('userRole', role);
+      localStorage.setItem('role', role);
+  
+      console.log("Role stored:", role);
+      console.log("Access token stored:", accessToken);
   
       // Redirect based on user role
-      if (role === 'admin') {
+      if (role === "admin") {
         navigate('/admin');
-      } else if (role === 'policyholder') {
+      } else if (role === "policyholder") {
         navigate('/dashboard');
       } else {
         navigate('/');
       }
     } catch (err) {
+      console.error("Login failed:", err);  // Log any error encountered
       setError('Login failed. Please check your email and password.');
     }
   };

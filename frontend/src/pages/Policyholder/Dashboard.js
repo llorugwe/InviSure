@@ -11,12 +11,14 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const { data } = await api.get('/user/dashboard', {
-          headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` },
-        });
-        setPolicyDetails(data.policyDetails);
-        setPremiumInfo(data.premiumInfo);
-        setClaimHistory(data.claimHistory);
+        // Use imported functions to fetch data
+        const claimsData = await getClaims();
+        const policiesData = await getTotalPolicies();
+        const pendingClaimsData = await getPendingClaims();
+
+        setPolicyDetails(policiesData); // Assuming this structure from backend response
+        setPremiumInfo(pendingClaimsData); // Adjust this to actual premium info if needed
+        setClaimHistory(claimsData);
       } catch (error) {
         setError('Failed to load dashboard data.');
         console.error('Error fetching dashboard data:', error);
