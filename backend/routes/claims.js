@@ -1,17 +1,24 @@
 const express = require('express');
-const { submitClaim, getUserClaims, getAllClaims, updateClaimStatus } = require('../controllers/claimController');
-const authMiddleware = require('../middlewares/authMiddleware');
-const fileUpload = require('../utils/fileUpload'); // Import file upload middleware
 const router = express.Router();
+const authMiddleware = require('../middlewares/authMiddleware');
+const Claim = require('../models/Claim');
 
-// Route for submitting a claim with document upload (user only)
-router.post('/', authMiddleware, fileUpload.array('documents'), submitClaim);
+// Endpoint: GET /claims - Fetches all claims for the authenticated policyholder
+router.get('/', authMiddleware('policyholder'), async (req, res) => {
+    try {
+        const userId = req.user.userId;
 
-// Route for retrieving all claims of the logged-in user
-router.get('/', authMiddleware, getUserClaims);
+        // Fetch all claims for the authenticated policyholder
+        const claims = await Claim.find({ userId })
+            .populate('policyId', 'policyName')
+            .select('description amount status submissionDate resolutionDate notes');
 
-// Admin routes for viewing all claims and updating claim status
-router.get('/all', authMiddleware, getAllClaims);
-router.put('/:claimId/status', authMiddleware, updateClaimStatus);
+        // Return an empty array with a 200 status if no claims are found
+        res.status(200).json(claims);
+    } catch (err) {
+        console.error('Error fetching claims:', err);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
 
 module.exports = router;

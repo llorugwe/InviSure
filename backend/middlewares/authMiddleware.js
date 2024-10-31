@@ -14,8 +14,12 @@ const authMiddleware = (requiredRole) => {
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
             req.user = decoded;
 
-            // Check if role is required and matches
+            // Log the user role and required role for debugging
+            console.log(`User role: ${req.user.role}, Required role: ${requiredRole}`);
+
+            // Check if the role is required and matches
             if (requiredRole && req.user.role !== requiredRole) {
+                console.log(`Access denied for role: ${req.user.role}, required role: ${requiredRole}`);
                 return res.status(403).json({ message: 'Forbidden: Access is denied' });
             }
 

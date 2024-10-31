@@ -1,26 +1,24 @@
 const mongoose = require('mongoose');
 
 const insurancePlanSchema = new mongoose.Schema({
-    name: {
+    policyName: String,
+    description: String,
+    coverageAmount: Number,
+    startDate: Date,
+    endDate: Date,
+    status: {
         type: String,
-        required: true,
-        trim: true
-    },
-    description: {
-        type: String,
-        required: true
+        enum: ['active', 'pending', 'expired'],
     },
     premium: {
-        type: Number,
-        required: true
-    },
-    coverage: {
-        type: String,
-        required: true
-    },
-    riskFactors: {
-        type: [String],  // Array of strings representing risk factors
-        required: true
+        amount: Number,
+        dueDate: Date,
+        paymentStatus: {
+            type: String,
+            enum: ['paid', 'overdue', 'pending'],
+        },
+        totalPaid: Number,
+        balanceDue: Number,
     }
 });
 

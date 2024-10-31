@@ -3,16 +3,13 @@ const { getTotalPolicies, getPendingClaims, getTotalClaims } = require('../contr
 const authMiddleware = require('../middlewares/authMiddleware');
 const router = express.Router();
 
-// Ensure that only admins can access these routes
-router.use(authMiddleware);  // Ensure authenticated requests
+// Route to get the total number of policies - Restricted to Admin
+router.get('/policies/total', authMiddleware('admin'), getTotalPolicies);
 
-// Route to get the total number of policies
-router.get('/policies/total', getTotalPolicies);
+// Route to get the count of pending claims - Restricted to Admin
+router.get('/claims/pending', authMiddleware('admin'), getPendingClaims);
 
-// Route to get the count of pending claims
-router.get('/claims/pending', getPendingClaims);
-
-// Route to get the total number of claims
-router.get('/claims/total', getTotalClaims);
+// Route to get the total number of claims - Restricted to Admin
+router.get('/claims/total', authMiddleware('admin'), getTotalClaims);
 
 module.exports = router;

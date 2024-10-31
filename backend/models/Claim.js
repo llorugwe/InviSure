@@ -1,21 +1,21 @@
 const mongoose = require('mongoose');
 
 const claimSchema = new mongoose.Schema({
-    user: {
+    userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true
     },
-    policy: {
+    policyId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Policy',
+        ref: 'InsurancePlan',
         required: true
     },
     description: {
         type: String,
         required: true
     },
-    amountRequested: {
+    amount: {
         type: Number,
         required: true
     },
@@ -24,23 +24,16 @@ const claimSchema = new mongoose.Schema({
         enum: ['submitted', 'in review', 'approved', 'rejected'],
         default: 'submitted'
     },
-    documents: [{
-        type: String   // Stores the path of each uploaded document
-    }],
-    submittedAt: {
+    submissionDate: {
         type: Date,
         default: Date.now
     },
-    updatedAt: {
-        type: Date,
-        default: Date.now
+    resolutionDate: {
+        type: Date
+    },
+    notes: {
+        type: String
     }
-});
-
-// Middleware to update the `updatedAt` field on document update
-claimSchema.pre('findOneAndUpdate', function(next) {
-    this.set({ updatedAt: Date.now() });
-    next();
 });
 
 module.exports = mongoose.model('Claim', claimSchema);
