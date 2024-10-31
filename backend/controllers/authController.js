@@ -119,11 +119,10 @@ const loginUser = async (req, res) => {
             return res.status(400).json({ message: 'Invalid credentials' });
         }
 
-        console.log("JWT_SECRET:", process.env.JWT_SECRET); // Debugging line
-        console.log("JWT_REFRESH_SECRET:", process.env.JWT_REFRESH_SECRET); // Debugging line
-        
+        const role = user.role === 'user' ? 'policyholder' : user.role; // Convert 'user' to 'policyholder'
+
         const accessToken = jwt.sign(
-            { userId: user._id, role: user.role },
+            { userId: user._id, role },
             process.env.JWT_SECRET,
             { expiresIn: '15m' }
         );
@@ -134,7 +133,7 @@ const loginUser = async (req, res) => {
         );
 
         console.log('Login successful');
-        res.status(200).json({ accessToken, refreshToken, role: user.role }); // Including role in the response
+        res.status(200).json({ accessToken, refreshToken, role }); // Including role in the response
     } catch (error) {
         console.error('Error during login:', error);
         res.status(500).json({ message: 'Server error' });

@@ -1,7 +1,7 @@
 // Load environment variables
 require('dotenv').config();
 
-const express = require('express'); // Ensure express is defined
+const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path'); // For serving static files
@@ -28,6 +28,10 @@ app.use(express.json());
 
 // Serve uploaded files statically from the 'uploads' directory
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Log the JWT_SECRET for verification
+console.log("JWT_SECRET from env:", process.env.JWT_SECRET);
+console.log("MONGO_URL from env:", process.env.MONGO_URL);  // Check MongoDB URL for connection issues
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_URL, {
