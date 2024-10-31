@@ -7,11 +7,12 @@ const api = axios.create({
 // Add a request interceptor to include the accessToken in all requests if available
 api.interceptors.request.use(
   (config) => {
-    const accessToken = localStorage.getItem('accessToken');
-    if (accessToken) {
-      config.headers.Authorization = `Bearer ${accessToken}`;
-    }
-    return config;
+      const accessToken = localStorage.getItem('accessToken');
+      console.log('Access Token:', accessToken);  // Log token to verify
+      if (accessToken) {
+          config.headers.Authorization = `Bearer ${accessToken}`;
+      }
+      return config;
   },
   (error) => Promise.reject(error)
 );
@@ -53,16 +54,24 @@ api.interceptors.response.use(
   }
 );
 
+// Helper function to check if the user is an admin
+const isAdmin = () => {
+  const role = localStorage.getItem('role');
+  return role === 'admin';
+};
+
 // Login function
 export const login = async (email, password) => {
   try {
-    const response = await api.post('/auth/login', { email, password });
-    localStorage.setItem('accessToken', response.data.accessToken);
-    localStorage.setItem('refreshToken', response.data.refreshToken);
-    return response.data;
+      const response = await api.post('/auth/login', { email, password });
+      // Store the access token and role in local storage
+      localStorage.setItem('accessToken', response.data.accessToken);
+      localStorage.setItem('refreshToken', response.data.refreshToken);
+      localStorage.setItem('role', response.data.role);  // Save user role for reference
+      return response.data;
   } catch (error) {
-    console.error('Error during login:', error);
-    throw error;
+      console.error('Error during login:', error);
+      throw error;
   }
 };
 
@@ -79,7 +88,7 @@ export const register = async (userData) => {
   }
 };
 
-// Submit a new claim
+// Submit a new claim (Accessible to all users)
 export const submitClaim = async (claimData) => {
   try {
     const response = await api.post('/claims', claimData);
@@ -90,7 +99,7 @@ export const submitClaim = async (claimData) => {
   }
 };
 
-// Retrieve all claims for the policyholder
+// Retrieve all claims for the policyholder (Accessible to all users)
 export const getClaims = async () => {
   try {
     const response = await api.get('/claims');
@@ -101,8 +110,12 @@ export const getClaims = async () => {
   }
 };
 
-// Update the status of a claim (Admin functionality)
+// Update the status of a claim (Admin functionality only)
 export const updateClaimStatus = async (claimId, newStatus) => {
+  if (!isAdmin()) {
+    console.warn('Access denied: Only admins can update claim status.');
+    return Promise.reject('Access Denied');
+  }
   try {
     const response = await api.put(`/claims/${claimId}`, { status: newStatus });
     return response.data;
@@ -112,8 +125,12 @@ export const updateClaimStatus = async (claimId, newStatus) => {
   }
 };
 
-// Admin Dashboard Metrics - Fetch total policies
+// Admin Dashboard Metrics - Fetch total policies (Admin functionality only)
 export const getTotalPolicies = async () => {
+  if (!isAdmin()) {
+    console.warn('Access denied: Only admins can access total policies.');
+    return Promise.reject('Access Denied');
+  }
   try {
     const response = await api.get('/admin/policies/total');
     return response.data;
@@ -123,8 +140,12 @@ export const getTotalPolicies = async () => {
   }
 };
 
-// Admin Dashboard Metrics - Fetch pending claims
+// Admin Dashboard Metrics - Fetch pending claims (Admin functionality only)
 export const getPendingClaims = async () => {
+  if (!isAdmin()) {
+    console.warn('Access denied: Only admins can access pending claims.');
+    return Promise.reject('Access Denied');
+  }
   try {
     const response = await api.get('/admin/claims/pending');
     return response.data;
@@ -134,8 +155,12 @@ export const getPendingClaims = async () => {
   }
 };
 
-// Admin Dashboard Metrics - Fetch total claims
+// Admin Dashboard Metrics - Fetch total claims (Admin functionality only)
 export const getTotalClaims = async () => {
+  if (!isAdmin()) {
+    console.warn('Access denied: Only admins can access total claims.');
+    return Promise.reject('Access Denied');
+  }
   try {
     const response = await api.get('/admin/claims/total');
     return response.data;

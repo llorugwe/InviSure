@@ -11,20 +11,18 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      console.log("Attempting to log in...");  // Log when login starts
+      console.log("Attempting to log in...");
       const response = await login(email, password);
-      console.log("Login response:", response);  // Log the response from the server
+      console.log("Login response:", response);
   
       const { role, accessToken } = response;
   
-      // Store the token and role
       localStorage.setItem('accessToken', accessToken);
       localStorage.setItem('role', role);
   
       console.log("Role stored:", role);
       console.log("Access token stored:", accessToken);
   
-      // Redirect based on user role
       if (role === "admin") {
         navigate('/admin');
       } else if (role === "policyholder") {
@@ -33,7 +31,7 @@ const Login = () => {
         navigate('/');
       }
     } catch (err) {
-      console.error("Login failed:", err);  // Log any error encountered
+      console.error("Login failed:", err);
       setError('Login failed. Please check your email and password.');
     }
   };
@@ -65,7 +63,6 @@ const Login = () => {
         </div>
         <button type="submit" className="btn btn-primary mt-3">Login</button>
       </form>
-      {/* Forgot Password Link */}
       <p className="mt-3">
         Forgot your password?{' '}
         <Link to="/forgot-password">Reset it here</Link>
