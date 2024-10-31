@@ -11,17 +11,20 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Call the login function and retrieve the role from the response
       const response = await login(email, password);
-      const { role } = response; // Assume response contains 'role' from the backend
-
+      const { role, accessToken } = response;
+  
+      // Save role and token to localStorage
+      localStorage.setItem('accessToken', accessToken);
+      localStorage.setItem('userRole', role);
+  
       // Redirect based on user role
       if (role === 'admin') {
         navigate('/admin');
       } else if (role === 'policyholder') {
         navigate('/dashboard');
       } else {
-        navigate('/'); // Default redirect if role is unknown
+        navigate('/');
       }
     } catch (err) {
       setError('Login failed. Please check your email and password.');
