@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import api from '../../services/claimsService';
+import { getClaims, getTotalPolicies, getPendingClaims } from '../../services/claimsService';
 
 const Dashboard = () => {
   const [policyDetails, setPolicyDetails] = useState([]);
