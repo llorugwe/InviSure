@@ -1,3 +1,4 @@
+// backend/server.js
 // Load environment variables
 require('dotenv').config();
 
@@ -7,21 +8,21 @@ const cors = require('cors');
 const path = require('path'); // For serving static files
 
 // Import routes
-const authRoutes = require('./routes/auth');             // Auth routes
-const insurancePlanRoutes = require('./routes/insurancePlans'); // Insurance plan routes
-const userRoutes = require('./routes/user');             // User routes for registration, login, and dashboard
-const premiumRoutes = require('./routes/premium');       // Premium calculation routes
-const claimsRoutes = require('./routes/claims');         // Claims routes for submission, tracking, and admin functions
-const adminRoutes = require('./routes/adminRoutes');     // Admin routes for dashboard metrics
-const policyRoutes = require('./routes/policies');       // Policies route for retrieving policy details
+const authRoutes = require('./routes/auth');
+const insurancePlanRoutes = require('./routes/insurancePlans');
+const userRoutes = require('./routes/user');
+const premiumRoutes = require('./routes/premium');
+const claimsRoutes = require('./routes/claims');
+const adminRoutes = require('./routes/adminRoutes');
+const policyRoutes = require('./routes/policies'); // Adjusted route for policy details
 
 const app = express();
 
 // Enable CORS for requests from http://localhost:3000
 app.use(cors({
-    origin: 'http://localhost:3000', // Allow only frontend origin
-    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Specify allowed methods
-    allowedHeaders: ['Content-Type', 'Authorization'] // Specify allowed headers
+    origin: 'http://localhost:3000',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 // Middleware to parse JSON requests
@@ -44,13 +45,13 @@ mongoose.connect(process.env.MONGO_URL, {
 .catch((err) => console.error('MongoDB connection error:', err));
 
 // Define routes
-app.use('/auth', authRoutes);                     // Authentication routes (register, login)
-app.use('/user', userRoutes);                     // User routes (dashboard, account management)
-app.use('/insurance-plans', insurancePlanRoutes); // Insurance plans CRUD routes
-app.use('/premium', premiumRoutes);               // Premium calculation routes
-app.use('/claims', claimsRoutes);                 // Claims submission, tracking, admin routes
-app.use('/admin', adminRoutes);                   // Admin metrics routes for dashboard
-app.use('/api/policies', policyRoutes);           // Policies route for retrieving policy details
+app.use('/auth', authRoutes);
+app.use('/user', userRoutes);
+app.use('/insurance-plans', insurancePlanRoutes);
+app.use('/premium', premiumRoutes);
+app.use('/claims', claimsRoutes);
+app.use('/admin', adminRoutes);
+app.use('/api/policies', policyRoutes); // Policies route
 
 // Handle undefined routes with a 404 response
 app.use((req, res) => {

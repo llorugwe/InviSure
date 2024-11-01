@@ -121,19 +121,20 @@ const loginUser = async (req, res) => {
 
         const role = user.role === 'user' ? 'policyholder' : user.role; // Convert 'user' to 'policyholder'
 
+        // Generate tokens with role included
         const accessToken = jwt.sign(
-            { userId: user._id, role },
+            { userId: user._id, role }, // Ensure role is in access token
             process.env.JWT_SECRET,
             { expiresIn: '15m' }
         );
         const refreshToken = jwt.sign(
-            { userId: user._id },
+            { userId: user._id, role }, // Ensure role is also in refresh token
             process.env.JWT_REFRESH_SECRET,
             { expiresIn: '7d' }
         );
 
         console.log('Login successful');
-        res.status(200).json({ accessToken, refreshToken, role }); // Including role in the response
+        res.status(200).json({ accessToken, refreshToken, role });
     } catch (error) {
         console.error('Error during login:', error);
         res.status(500).json({ message: 'Server error' });
@@ -207,6 +208,13 @@ const refreshAccessToken = async (req, res) => {
     try {
         console.log('Verifying refresh token...');
         const decoded = jwt.verify(token, process.env.JWT_REFRESH_SECRET);
+
+        if (!decoded.role) {
+            console.error('Role missing in refresh token payload');
+            return res.status(403).json({ message: 'Invalid or expired refresh token' });
+        }
+
+        // Generate new access token with role
         const accessToken = jwt.sign(
             { userId: decoded.userId, role: decoded.role },
             process.env.JWT_SECRET,

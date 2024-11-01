@@ -7,6 +7,11 @@ const policySchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
+    insurancePlanId: {  // Reference to the InsurancePlan model
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'InsurancePlan',
+        required: true
+    },
     policyName: {
         type: String,
         required: true
@@ -16,10 +21,6 @@ const policySchema = new mongoose.Schema({
         required: true
     },
     coverageAmount: {
-        type: Number,
-        required: true
-    },
-    premiumAmount: {
         type: Number,
         required: true
     },
@@ -33,9 +34,36 @@ const policySchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['active', 'pending', 'expired'],
+        enum: ['active', 'pending', 'expired', 'cancelled'],  // Added 'cancelled' status
         default: 'pending'
+    },
+    cancellationDate: {  // Date of policy cancellation
+        type: Date,
+        default: null
+    },
+    premium: {
+        amount: {
+            type: Number,
+            required: true
+        },
+        nextDueDate: {  // Date for the next premium payment
+            type: Date,
+            default: null
+        },
+        paymentStatus: {
+            type: String,
+            enum: ['paid', 'overdue', 'pending'],
+            default: 'pending'
+        },
+        totalPaid: {
+            type: Number,
+            default: 0
+        },
+        balanceDue: {
+            type: Number,
+            default: 0
+        }
     }
-});
+}, { timestamps: true });  // Adds createdAt and updatedAt fields
 
 module.exports = mongoose.model('Policy', policySchema);
