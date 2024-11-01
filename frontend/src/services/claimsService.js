@@ -64,7 +64,6 @@ const isAdmin = () => {
 export const login = async (email, password) => {
   try {
       const response = await api.post('/auth/login', { email, password });
-      // Store the access token and role in local storage
       localStorage.setItem('accessToken', response.data.accessToken);
       localStorage.setItem('refreshToken', response.data.refreshToken);
       localStorage.setItem('role', response.data.role);  // Save user role for reference
@@ -106,6 +105,28 @@ export const getClaims = async () => {
     return response.data;
   } catch (error) {
     console.error('Error fetching claims:', error);
+    throw error;
+  }
+};
+
+// Retrieve policy details for policyholders
+export const getPolicies = async () => {
+  try {
+    const response = await api.get('/api/policies');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching policies:', error);
+    throw error;
+  }
+};
+
+// Retrieve premium information for policyholders
+export const getPremiums = async () => {
+  try {
+    const response = await api.get('/api/premiums');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching premium information:', error);
     throw error;
   }
 };
