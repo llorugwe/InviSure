@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import Header from './components/Header';
-import HomePage from './pages/Policyholder/HomePage';
+import HomePage from './pages/HomePage';
 import Dashboard from './pages/Policyholder/Dashboard'; // Add Dashboard if not already imported
 import AdminDashboard from './pages/Admin/AdminDashboard';
 import SubmitClaim from './pages/Policyholder/SubmitClaim';

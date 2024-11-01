@@ -1,7 +1,9 @@
+// authMiddleware.js
 const jwt = require('jsonwebtoken');
+const { refreshAccessToken } = require('../controllers/authController'); // Ensure refresh logic is accessible here
 
 const authMiddleware = (requiredRoles) => {
-    return (req, res, next) => {
+    return async (req, res, next) => {
         const authHeader = req.header('Authorization');
 
         if (!authHeader) {
@@ -18,15 +20,6 @@ const authMiddleware = (requiredRoles) => {
             // Log decoded user information for debugging
             console.log(`Decoded user info:`, req.user);
 
-            // Check if the user role is defined in the token payload
-            if (!req.user.role) {
-                console.error('User role is missing from token payload');
-                return res.status(401).json({ message: 'Invalid token payload: Role is missing' });
-            }
-
-            // Log the user role and required roles for debugging
-            console.log(`User role: ${req.user.role}, Required roles: ${requiredRoles}`);
-
             // Check if the user's role matches any of the required roles
             if (requiredRoles && !requiredRoles.includes(req.user.role)) {
                 console.log(`Access denied for role: ${req.user.role}, required roles: ${requiredRoles}`);
@@ -35,8 +28,27 @@ const authMiddleware = (requiredRoles) => {
 
             next();
         } catch (err) {
-            console.error('Token verification failed:', err);
-            res.status(401).json({ message: 'Invalid token' });
+            // If the token has expired, attempt to refresh it
+            if (err.name === 'TokenExpiredError') {
+                console.log('Token expired. Attempting to refresh...');
+
+                const refreshToken = req.header('x-refresh-token'); // Assuming the frontend sends a refresh token in headers
+                if (!refreshToken) {
+                    return res.status(401).json({ message: 'No refresh token provided' });
+                }
+
+                try {
+                    const newAccessToken = await refreshAccessToken(refreshToken); // Function to handle token refresh
+                    res.setHeader('x-new-access-token', newAccessToken); // Send new token to frontend
+                    return next(); // Retry the request with a refreshed token
+                } catch (refreshError) {
+                    console.error('Refresh token failed:', refreshError);
+                    return res.status(403).json({ message: 'Token refresh failed' });
+                }
+            } else {
+                console.error('Token verification failed:', err);
+                return res.status(401).json({ message: 'Invalid token' });
+            }
         }
     };
 };

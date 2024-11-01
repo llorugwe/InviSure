@@ -198,7 +198,7 @@ const resetPassword = async (req, res) => {
 
 // Refresh access token controller
 const refreshAccessToken = async (req, res) => {
-    const { token } = req.body;
+    const { token } = req.body; // Expecting the refresh token in the body
 
     if (!token) {
         console.log('Token is required for refresh');
@@ -214,15 +214,15 @@ const refreshAccessToken = async (req, res) => {
             return res.status(403).json({ message: 'Invalid or expired refresh token' });
         }
 
-        // Generate new access token with role
-        const accessToken = jwt.sign(
-            { userId: decoded.userId, role: decoded.role },
+        // Generate a new access token
+        const newAccessToken = jwt.sign(
+            { userId: decoded.userId, role: decoded.role }, // Preserve the role in the payload
             process.env.JWT_SECRET,
-            { expiresIn: '15m' }
+            { expiresIn: '15m' } // Shorter lifespan for access token
         );
 
         console.log('Access token refreshed successfully');
-        res.status(200).json({ accessToken });
+        res.status(200).json({ accessToken: newAccessToken });
     } catch (error) {
         console.error('Error during token refresh:', error);
         res.status(403).json({ message: 'Invalid or expired refresh token' });

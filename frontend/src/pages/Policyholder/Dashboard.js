@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { getClaims, getPolicies, getPremiums, getTotalPolicies, getPendingClaims } from '../../services/claimsService';
+import { getClaims, getPremiums, getTotalPolicies, getPendingClaims } from '../../services/claimsService';
+import UserPoliciesList from '../../components/UserPolicies/UserPoliciesList'; // Import UserPoliciesList component
 
 const Dashboard = () => {
-  const [policyDetails, setPolicyDetails] = useState([]);
   const [premiumInfo, setPremiumInfo] = useState(null);
   const [claimHistory, setClaimHistory] = useState([]);
   const [error, setError] = useState(null);
@@ -17,20 +17,14 @@ const Dashboard = () => {
         const claimsData = await getClaims();
         setClaimHistory(claimsData);
 
-        // Fetch policy details and premium information based on role
+        // Fetch premium information based on role
         if (userRole === 'admin') {
-          // Fetch admin-specific data
-          const policiesData = await getTotalPolicies();
+          // Fetch admin-specific premium data
           const pendingClaimsData = await getPendingClaims();
-
-          setPolicyDetails(policiesData);
           setPremiumInfo(pendingClaimsData);
         } else if (userRole === 'policyholder') {
-          // Fetch policyholder-specific data
-          const policiesData = await getPolicies();
+          // Fetch policyholder-specific premium data
           const premiumData = await getPremiums();
-
-          setPolicyDetails(policiesData);
           setPremiumInfo(premiumData);
         }
       } catch (error) {
@@ -51,24 +45,13 @@ const Dashboard = () => {
       <h2>{userRole === 'admin' ? 'Admin Dashboard' : 'User Dashboard'}</h2>
       {error && <p className="alert alert-danger">{error}</p>}
 
-      {/* Policy Details Section */}
-      <section>
-        <h3>Policy Details</h3>
-        {policyDetails.length > 0 ? (
-          <ul>
-            {policyDetails.map((policy) => (
-              <li key={policy.id}>
-                <p><strong>Policy Name:</strong> {policy.policyName || policy.name}</p>
-                <p><strong>Description:</strong> {policy.description}</p>
-                <p><strong>Coverage Amount:</strong> ${policy.coverageAmount || policy.coverage}</p>
-                {userRole === 'policyholder' && <p><strong>Premium Amount:</strong> ${policy.premiumAmount}</p>}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>No policies available.</p>
-        )}
-      </section>
+      {/* Policy Details Section - Show UserPoliciesList for policyholders */}
+      {userRole === 'policyholder' && (
+        <section className="mt-4">
+          <h3>My Policies</h3>
+          <UserPoliciesList /> {/* Display UserPoliciesList for the policyholder */}
+        </section>
+      )}
 
       {/* Premium Information Section */}
       <section className="mt-4">

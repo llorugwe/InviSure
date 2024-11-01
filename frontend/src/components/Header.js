@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 const Header = () => {
   const isAuthenticated = !!localStorage.getItem('accessToken');
-  const role = localStorage.getItem('userRole'); // Store role in localStorage after login
+  const role = localStorage.getItem('role'); // Ensure this matches the 'role' key set on login
 
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-light">
@@ -15,6 +15,9 @@ const Header = () => {
               <>
                 <li className="nav-item">
                   <Link className="nav-link" to="/dashboard">Dashboard</Link>
+                </li>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/my-policies">My Policies</Link>
                 </li>
                 <li className="nav-item">
                   <Link className="nav-link" to="/submit-claim">Submit Claim</Link>
@@ -42,7 +45,7 @@ const Header = () => {
               <li className="nav-item">
                 <button className="btn btn-link nav-link" onClick={() => {
                   localStorage.removeItem('accessToken');
-                  localStorage.removeItem('userRole');
+                  localStorage.removeItem('role');
                   window.location.href = '/';
                 }}>
                   Logout
