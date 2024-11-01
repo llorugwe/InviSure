@@ -48,18 +48,34 @@ const insurancePlanSchema = new mongoose.Schema({
     }]
 });
 
-// Static method to get active plans
+// Static method to get active plans (For admin and user retrieval)
 insurancePlanSchema.statics.getActivePlans = function () {
     return this.find({ status: 'active' });
 };
 
-// Instance method to update purchase status
+// Instance method to update the purchase status of a specific user's plan
 insurancePlanSchema.methods.updatePurchaseStatus = function (userId, isActive) {
     const purchase = this.purchases.find(purchase => purchase.userId.equals(userId));
     if (purchase) {
         purchase.isActive = isActive;
         return this.save();
     }
+};
+
+// Static method for creating a new insurance plan (for admin functionality)
+insurancePlanSchema.statics.createPlan = function (planData) {
+    const plan = new this(planData);
+    return plan.save();
+};
+
+// Static method for updating an existing insurance plan (for admin functionality)
+insurancePlanSchema.statics.updatePlan = function (planId, updateData) {
+    return this.findByIdAndUpdate(planId, updateData, { new: true });
+};
+
+// Static method for deleting an insurance plan (for admin functionality)
+insurancePlanSchema.statics.deletePlan = function (planId) {
+    return this.findByIdAndDelete(planId);
 };
 
 module.exports = mongoose.model('InsurancePlan', insurancePlanSchema);
