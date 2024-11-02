@@ -23,12 +23,15 @@ router.post('/', authMiddleware('admin'), async (req, res) => {
     }
 });
 
-// Get all available insurance plans (publicly accessible)
+// Public endpoint to get all available insurance plans (publicly accessible)
 router.get('/', async (req, res) => {
     try {
-        const plans = await InsurancePlan.find({ isAvailable: true }); // Only return available plans
+        const plans = await InsurancePlan.find({ isAvailable: true }).select(
+            'policyName description premiumAmount coverageAmount isAvailable'
+        ); // Only return available plans with specified fields
         res.status(200).json(plans);
     } catch (err) {
+        console.error('Error fetching available insurance plans:', err);
         res.status(500).json({ message: 'Server error' });
     }
 });
@@ -63,7 +66,7 @@ router.post('/:id/purchase', authMiddleware('policyholder'), async (req, res) =>
             description: plan.description,
             coverageAmount: plan.coverage,
             startDate: new Date(),
-            endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)), // Default to 1 year duration
+            endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)), // Default to 1-year duration
             status: 'active',
             premium: {
                 amount: plan.premium,
