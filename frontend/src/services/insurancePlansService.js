@@ -1,9 +1,20 @@
-// services/insurancePlansService.js
 import axios from 'axios';
 
 const api = axios.create({
   baseURL: 'http://localhost:5000', // Ensure this matches your backend server URL
 });
+
+// Add a request interceptor to include the access token in all requests if available
+api.interceptors.request.use(
+  (config) => {
+    const accessToken = localStorage.getItem('accessToken');
+    if (accessToken) {
+      config.headers.Authorization = `Bearer ${accessToken}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
 // Function to fetch all available insurance plans for the homepage
 export const getInsurancePlans = async () => {

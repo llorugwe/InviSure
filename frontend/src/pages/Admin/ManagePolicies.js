@@ -1,23 +1,26 @@
 import React, { useEffect, useState } from 'react';
-import { getAllPoliciesAdmin, createPolicy } from '../../services/insurancePlansService';
+import { getAllPoliciesAdmin, createPolicy, deletePolicy, updatePolicy } from '../../services/insurancePlansService';
 
 const ManagePolicies = () => {
   const [policies, setPolicies] = useState([]);
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const [newPolicy, setNewPolicy] = useState({
-    name: '',
-    description: '',
-    premium: '',
-    coverage: '',
-    riskFactors: [], // Default value as empty array
-    isAvailable: true // Default value as true
+  const [isEditing, setIsEditing] = useState(false); // To track if we're editing or creating
+  const [editPolicyId, setEditPolicyId] = useState(null); // To store the ID of the policy being edited
+
+  const [policyData, setPolicyData] = useState({
+    policyName: '',        // Default as empty string
+    description: '',        // Default as empty string
+    premiumAmount: 0,       // Default as 0 to avoid undefined
+    coverageAmount: 0,      // Default as 0 to avoid undefined
+    riskFactors: [],        // Default as empty array
+    isAvailable: true       // Default as true
   });
 
   useEffect(() => {
     const fetchPolicies = async () => {
       try {
-        const policiesData = await getAllPoliciesAdmin(); // Fetch policies from admin endpoint
+        const policiesData = await getAllPoliciesAdmin();
         setPolicies(policiesData);
       } catch (err) {
         setError('Failed to load policies');
@@ -26,19 +29,56 @@ const ManagePolicies = () => {
     fetchPolicies();
   }, []);
 
-  const handleCreatePolicy = async () => {
+  const handleCreateOrEditPolicy = async () => {
     try {
-      await createPolicy(newPolicy);
+      if (isEditing) {
+        // If editing, update the existing policy
+        await updatePolicy(editPolicyId, policyData);
+      } else {
+        // If creating, create a new policy
+        await createPolicy(policyData);
+      }
       setShowModal(false);
-      setNewPolicy({ name: '', description: '', premium: '', coverage: '', riskFactors: [], isAvailable: true });
-      
-      // Refresh the policies list to include the newly created policy
+      setPolicyData({
+        policyName: '', description: '', premiumAmount: 0, coverageAmount: 0, riskFactors: [], isAvailable: true
+      });
+      setIsEditing(false);
+      setEditPolicyId(null);
+
+      // Refresh the policies list
       const updatedPolicies = await getAllPoliciesAdmin();
       setPolicies(updatedPolicies);
-      setError(null); // Clear any previous error
+      setError(null);
     } catch (error) {
-      setError('Failed to create policy');
+      setError(isEditing ? 'Failed to update policy' : 'Failed to create policy');
     }
+  };
+
+  const handleDeletePolicy = async (policyId) => {
+    try {
+      console.log("Deleting policy with ID:", policyId);  // Debugging
+      await deletePolicy(policyId);
+      // Refresh the policies list after deletion
+      const updatedPolicies = await getAllPoliciesAdmin();
+      setPolicies(updatedPolicies);
+      setError(null);
+    } catch (error) {
+      setError('Failed to delete policy');
+    }
+  };
+
+  const handleEditClick = (policy) => {
+    setIsEditing(true);
+    setEditPolicyId(policy._id);
+    setPolicyData({
+      policyName: policy.policyName || '', // Provide fallback empty string
+      description: policy.description || '', // Provide fallback empty string
+      premiumAmount: policy.premiumAmount || 0, // Ensure it's a number
+      coverageAmount: policy.coverageAmount || 0, // Ensure it's a number
+      riskFactors: policy.riskFactors || [],
+      isAvailable: policy.isAvailable !== undefined ? policy.isAvailable : true
+    });
+    setShowModal(true);
   };
 
   return (
@@ -46,52 +86,57 @@ const ManagePolicies = () => {
       <h1>Manage Policies</h1>
       {error && <p className="alert alert-danger">{error}</p>}
 
-      <button onClick={() => setShowModal(true)} className="btn btn-primary mb-3">Create New Policy</button>
+      <button onClick={() => { setShowModal(true); setIsEditing(false); setPolicyData({ policyName: '', description: '', premiumAmount: 0, coverageAmount: 0, riskFactors: [], isAvailable: true }); }} className="btn btn-primary mb-3">
+        Create New Policy
+      </button>
 
       {showModal && (
         <div className="modal-overlay">
           <div className="modal-content">
-            <h2>Create New Policy</h2>
+            <h2>{isEditing ? 'Edit Policy' : 'Create New Policy'}</h2>
             <form>
               <label>Policy Name:</label>
               <input
                 type="text"
-                value={newPolicy.name}
-                onChange={(e) => setNewPolicy({ ...newPolicy, name: e.target.value })}
+                value={policyData.policyName}
+                onChange={(e) => setPolicyData({ ...policyData, policyName: e.target.value })}
               />
               <label>Description:</label>
               <input
                 type="text"
-                value={newPolicy.description}
-                onChange={(e) => setNewPolicy({ ...newPolicy, description: e.target.value })}
+                value={policyData.description}
+                onChange={(e) => setPolicyData({ ...policyData, description: e.target.value })}
               />
-              <label>Premium:</label>
+              <label>Premium Amount:</label>
               <input
                 type="number"
-                value={newPolicy.premium}
-                onChange={(e) => setNewPolicy({ ...newPolicy, premium: Number(e.target.value) })}
+                value={policyData.premiumAmount}
+                onChange={(e) => setPolicyData({ ...policyData, premiumAmount: Number(e.target.value) })}
               />
-              <label>Coverage:</label>
+              <label>Coverage Amount:</label>
               <input
                 type="number"
-                value={newPolicy.coverage}
-                onChange={(e) => setNewPolicy({ ...newPolicy, coverage: Number(e.target.value) })}
+                value={policyData.coverageAmount}
+                onChange={(e) => setPolicyData({ ...policyData, coverageAmount: Number(e.target.value) })}
               />
               <label>Risk Factors (Optional):</label>
               <input
                 type="text"
                 placeholder="Enter risk factors separated by commas"
-                onChange={(e) => setNewPolicy({ ...newPolicy, riskFactors: e.target.value.split(',').map(f => f.trim()) })}
+                value={policyData.riskFactors.join(', ')}
+                onChange={(e) => setPolicyData({ ...policyData, riskFactors: e.target.value.split(',').map(f => f.trim()) })}
               />
               <label>Availability:</label>
               <select
-                value={newPolicy.isAvailable}
-                onChange={(e) => setNewPolicy({ ...newPolicy, isAvailable: e.target.value === 'true' })}
+                value={policyData.isAvailable}
+                onChange={(e) => setPolicyData({ ...policyData, isAvailable: e.target.value === 'true' })}
               >
                 <option value="true">Available</option>
                 <option value="false">Not Available</option>
               </select>
-              <button type="button" onClick={handleCreatePolicy} className="btn btn-success mt-3">Create Policy</button>
+              <button type="button" onClick={handleCreateOrEditPolicy} className="btn btn-success mt-3">
+                {isEditing ? 'Update Policy' : 'Create Policy'}
+              </button>
               <button type="button" onClick={() => setShowModal(false)} className="btn btn-secondary mt-3">Cancel</button>
             </form>
           </div>
@@ -103,22 +148,21 @@ const ManagePolicies = () => {
           <tr>
             <th>Name</th>
             <th>Description</th>
-            <th>Premium</th>
-            <th>Coverage</th>
+            <th>Premium Amount</th>
+            <th>Coverage Amount</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody>
           {policies.map((policy) => (
             <tr key={policy._id}>
-              <td>{policy.name}</td>
+              <td>{policy.policyName}</td>
               <td>{policy.description}</td>
-              <td>${policy.premium}</td>
-              <td>{policy.coverage}</td>
+              <td>R {policy.premiumAmount?.toLocaleString()}</td>
+              <td>R {policy.coverageAmount?.toLocaleString()}</td>
               <td>
-                {/* Placeholder for future Edit/Delete actions */}
-                <button className="btn btn-warning btn-sm">Edit</button>
-                <button className="btn btn-danger btn-sm">Delete</button>
+                <button className="btn btn-warning btn-sm" onClick={() => handleEditClick(policy)}>Edit</button>
+                <button className="btn btn-danger btn-sm" onClick={() => handleDeletePolicy(policy._id)}>Delete</button>
               </td>
             </tr>
           ))}

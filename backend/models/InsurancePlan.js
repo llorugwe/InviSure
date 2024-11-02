@@ -11,13 +11,18 @@ const insurancePlanSchema = new mongoose.Schema({
     },
     coverageAmount: { 
         type: Number, 
-        required: true 
+        required: true,
+        min: [0, 'Coverage amount must be a positive number']
     },
     premiumAmount: { 
         type: Number, 
-        required: true 
+        required: true,
+        min: [0, 'Premium amount must be a positive number']
     },
-    startDate: Date,  
+    startDate: { 
+        type: Date, 
+        default: Date.now  // Optional: default to current date if not provided
+    },
     endDate: Date,
     status: {
         type: String,

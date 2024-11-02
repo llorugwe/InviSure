@@ -71,14 +71,23 @@ const registerAdmin = async (req, res) => {
 
 // Admin function to create a new insurance plan
 const createInsurancePlan = async (req, res) => {
-    const { name, description, premium, coverage, riskFactors, isAvailable } = req.body;
+    const { policyName, description, premiumAmount, coverageAmount, riskFactors, isAvailable } = req.body;
+    
+    // Log the received data
+    console.log('Received data in createInsurancePlan:', req.body);
+
+    // Basic validation
+    if (!policyName || !description || !premiumAmount || !coverageAmount) {
+        console.error('Missing required fields:', { policyName, description, premiumAmount, coverageAmount });
+        return res.status(400).json({ message: 'All required fields must be provided' });
+    }
 
     try {
         const newPlan = new InsurancePlan({
-            name,
+            policyName,
             description,
-            premium,
-            coverage,
+            premiumAmount,
+            coverageAmount,
             riskFactors,
             isAvailable: isAvailable ?? true
         });
@@ -174,6 +183,17 @@ const getAllClaims = async (req, res) => {
     }
 };
 
+// Admin function to retrieve all insurance policies
+const getAllPolicies = async (req, res) => {
+    try {
+        const policies = await InsurancePlan.find(); // Retrieve all policies
+        res.status(200).json(policies); // Send the policies in the response
+    } catch (error) {
+        console.error('Error retrieving policies:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
 module.exports = { 
     getTotalPolicies, 
     getPendingClaims, 
@@ -185,5 +205,6 @@ module.exports = {
     updateUserStatus, 
     upgradeUserToAdmin, 
     updateClaimStatus, 
-    getAllClaims 
+    getAllClaims, 
+    getAllPolicies // Add this line to export the function
 };
