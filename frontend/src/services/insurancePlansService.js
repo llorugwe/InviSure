@@ -71,6 +71,17 @@ export const deletePolicy = async (policyId) => {
   }
 };
 
+// Fetch publicly available insurance plans
+export const getPublicInsurancePlans = async () => {
+  try {
+    const response = await api.get('/insurance-plans'); // Ensure the endpoint matches the backend route
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching public insurance plans:', error);
+    throw error;
+  }
+};
+
 // Function to fetch details of a specific insurance plan by ID
 export const getInsurancePlanDetails = async (planId) => {
   try {

@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { getInsurancePlans } from '../services/insurancePlansService'; // Ensure this import is correct
+import { getPublicInsurancePlans } from '../services/insurancePlansService'; // Updated import to match the public endpoint
 
 const HomePage = () => {
   const [plans, setPlans] = useState([]);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Fetch available insurance plans if there's a public endpoint
+    // Fetch available insurance plans from the public endpoint
     const fetchPlans = async () => {
       try {
-        const data = await getInsurancePlans();
+        const data = await getPublicInsurancePlans(); // Ensure the function matches the public endpoint in insurancePlansService.js
         setPlans(data);
       } catch (error) {
         setError("Failed to load insurance plans.");
@@ -48,12 +48,12 @@ const HomePage = () => {
         {plans.length > 0 ? (
           <div className="plans-list d-flex justify-content-around flex-wrap">
             {plans.map((plan) => (
-              <div key={plan.id} className="card m-2" style={{ width: '18rem' }}>
+              <div key={plan._id} className="card m-2" style={{ width: '18rem' }}>
                 <div className="card-body">
-                  <h5 className="card-title">{plan.name}</h5>
+                  <h5 className="card-title">{plan.policyName}</h5> {/* Adjusted field name */}
                   <p className="card-text">{plan.description}</p>
-                  <p><strong>Coverage:</strong> ${plan.coverageAmount}</p>
-                  <p><strong>Premium:</strong> ${plan.premiumAmount}</p>
+                  <p><strong>Coverage:</strong> R {plan.coverageAmount.toLocaleString()}</p> {/* Updated to Rands */}
+                  <p><strong>Premium:</strong> R {plan.premiumAmount.toLocaleString()}</p> {/* Updated to Rands */}
                   <button className="btn btn-primary" disabled>
                     View Details
                   </button>
