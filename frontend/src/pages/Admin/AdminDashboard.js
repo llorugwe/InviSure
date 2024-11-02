@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+// src/pages/Admin/AdminDashboard.js
+import React, { useState, useEffect } from 'react'; 
 import { Link } from 'react-router-dom';
 import { getTotalPolicies, getPendingClaims, getTotalClaims } from '../../services/claimsService';
 
