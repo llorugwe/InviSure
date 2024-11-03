@@ -1,20 +1,41 @@
+// backend/models/Policy.js
 const mongoose = require('mongoose');
 
 const policySchema = new mongoose.Schema({
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    insurancePlanId: { type: mongoose.Schema.Types.ObjectId, ref: 'InsurancePlan', required: true },
-    policyName: { type: String, required: true },
+    policyName: String,
     description: String,
     coverageAmount: Number,
+    premiumAmount: Number,
     startDate: Date,
     endDate: Date,
-    status: { type: String, enum: ['active', 'pending', 'expired'], default: 'active' },
+    status: {
+        type: String,
+        enum: ['active', 'expired', 'pending'], // Example: Ensure all possible statuses are here
+        default: 'active'
+    },
     premium: {
         amount: Number,
-        paymentStatus: { type: String, enum: ['paid', 'due', 'overdue'], default: 'due' },
-        totalPaid: { type: Number, default: 0 },
-        balanceDue: Number,
-        nextDueDate: Date
+        nextDueDate: Date,
+        paymentStatus: {
+            type: String,
+            enum: ['pending', 'paid', 'due'], // Add 'pending' here
+            default: 'pending'
+        },
+        totalPaid: {
+            type: Number,
+            default: 0
+        },
+        balanceDue: Number
+    },
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+    },
+    insurancePlanId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'InsurancePlan',
+        required: true
     }
 });
 

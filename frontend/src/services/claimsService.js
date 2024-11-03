@@ -88,9 +88,10 @@ export const register = async (userData) => {
 };
 
 // Submit a new claim (Accessible to all users)
+// Submit a new claim (Accessible to all users)
 export const submitClaim = async (claimData) => {
   try {
-    const response = await api.post('/claims', claimData);
+    const response = await api.post('/claims/submit', claimData);
     return response.data;
   } catch (error) {
     console.error('Error submitting claim:', error);

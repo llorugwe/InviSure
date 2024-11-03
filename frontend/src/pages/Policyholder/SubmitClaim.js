@@ -1,15 +1,29 @@
-import React, { useState } from 'react';
-import { submitClaim } from '../../services/claimsService';
+import React, { useState, useEffect } from 'react';
+import { submitClaim, getPolicies } from '../../services/claimsService';
 
 const SubmitClaim = () => {
+  const [policies, setPolicies] = useState([]);
   const [claim, setClaim] = useState({
-    policyNumber: '',
+    policyId: '',  // Change to policyId to match backend expectations
     description: '',
     amount: '',
   });
 
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
+
+  // Fetch available policies on component mount
+  useEffect(() => {
+    const fetchPolicies = async () => {
+      try {
+        const policiesData = await getPolicies();
+        setPolicies(policiesData);
+      } catch (error) {
+        setError('Failed to load policies. Please try again later.');
+      }
+    };
+    fetchPolicies();
+  }, []);
 
   const handleChange = (e) => {
     setClaim({
@@ -20,9 +34,13 @@ const SubmitClaim = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError(null);
+    setSuccess(false);
+
     try {
       await submitClaim(claim);
       setSuccess(true);
+      setClaim({ policyId: '', description: '', amount: '' });  // Reset form
     } catch (err) {
       setError('Failed to submit claim. Please try again.');
     }
@@ -36,31 +54,37 @@ const SubmitClaim = () => {
       ) : (
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="policyNumber">Policy Number:</label>
-            <input
-              type="text"
+            <label htmlFor="policyId">Policy:</label>
+            <select
               className="form-control"
-              id="policyNumber"
-              name="policyNumber"
-              value={claim.policyNumber}
+              id="policyId"
+              name="policyId"
+              value={claim.policyId}
               onChange={handleChange}
               required
-            />
+            >
+              <option value="">Select your policy</option>
+              {policies.map((policy) => (
+                <option key={policy._id} value={policy._id}>
+                  {policy.policyName}
+                </option>
+              ))}
+            </select>
           </div>
           <div className="form-group">
             <label htmlFor="description">Description:</label>
-            <input
-              type="text"
+            <textarea
               className="form-control"
               id="description"
               name="description"
               value={claim.description}
               onChange={handleChange}
+              placeholder="Briefly describe the reason for your claim"
               required
             />
           </div>
           <div className="form-group">
-            <label htmlFor="amount">Amount:</label>
+            <label htmlFor="amount">Amount (optional):</label>
             <input
               type="number"
               className="form-control"
@@ -68,7 +92,7 @@ const SubmitClaim = () => {
               name="amount"
               value={claim.amount}
               onChange={handleChange}
-              required
+              placeholder="Enter claim amount in USD"
             />
           </div>
           <button type="submit" className="btn btn-primary mt-3">
