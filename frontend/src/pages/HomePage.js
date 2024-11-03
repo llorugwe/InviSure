@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { getPublicInsurancePlans } from '../services/insurancePlansService'; // Updated import to match the public endpoint
+import { Link, useNavigate } from 'react-router-dom';
+import { getPublicInsurancePlans } from '../services/insurancePlansService';
 
 const HomePage = () => {
   const [plans, setPlans] = useState([]);
   const [error, setError] = useState(null);
+  const isAuthenticated = !!localStorage.getItem('accessToken'); // Check if user is logged in
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Fetch available insurance plans from the public endpoint
     const fetchPlans = async () => {
       try {
-        const data = await getPublicInsurancePlans(); // Ensure the function matches the public endpoint in insurancePlansService.js
+        const data = await getPublicInsurancePlans();
         setPlans(data);
       } catch (error) {
         setError("Failed to load insurance plans.");
@@ -20,9 +22,22 @@ const HomePage = () => {
     fetchPlans();
   }, []);
 
+  const handleViewDetails = (planId) => {
+    // Navigate to the plan details page
+    navigate(`/plan/${planId}`);
+  };
+
+  const handlePurchase = (planId) => {
+    if (isAuthenticated) {
+      navigate(`/purchase/${planId}`);
+    } else {
+      alert("Please register or log in to purchase an insurance plan."); // Alert if not logged in
+      navigate('/register');
+    }
+  };
+
   return (
     <div className="homepage container mt-5">
-      
       {/* Welcome Message and Overview */}
       <section className="welcome-section text-center">
         <h1>Welcome to InviSure</h1>
@@ -50,12 +65,15 @@ const HomePage = () => {
             {plans.map((plan) => (
               <div key={plan._id} className="card m-2" style={{ width: '18rem' }}>
                 <div className="card-body">
-                  <h5 className="card-title">{plan.policyName}</h5> {/* Adjusted field name */}
+                  <h5 className="card-title">{plan.policyName}</h5>
                   <p className="card-text">{plan.description}</p>
-                  <p><strong>Coverage:</strong> R {plan.coverageAmount.toLocaleString()}</p> {/* Updated to Rands */}
-                  <p><strong>Premium:</strong> R {plan.premiumAmount.toLocaleString()}</p> {/* Updated to Rands */}
-                  <button className="btn btn-primary" disabled>
+                  <p><strong>Coverage:</strong> R {plan.coverageAmount.toLocaleString()}</p>
+                  <p><strong>Premium:</strong> R {plan.premiumAmount.toLocaleString()}</p>
+                  <button onClick={() => handleViewDetails(plan._id)} className="btn btn-info mx-1">
                     View Details
+                  </button>
+                  <button onClick={() => handlePurchase(plan._id)} className="btn btn-primary mx-1">
+                    {isAuthenticated ? 'Purchase' : 'Register to Purchase'}
                   </button>
                 </div>
               </div>
@@ -64,12 +82,6 @@ const HomePage = () => {
         ) : (
           <p>No insurance plans available at the moment. Please check back later.</p>
         )}
-      </section>
-
-      {/* About or Mission Section */}
-      <section className="mission-section text-center mt-5">
-        <h2>Our Mission</h2>
-        <p>Our mission is to make insurance accessible to underserved communities by providing simple, transparent, and affordable insurance solutions. We believe everyone deserves peace of mind and financial security, no matter their income level.</p>
       </section>
 
       {/* Footer Links */}

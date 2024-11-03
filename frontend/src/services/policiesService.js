@@ -33,10 +33,22 @@ export const getUserPolicies = async () => {
 // Function to retrieve premium information for each policy
 export const getPremiums = async () => {
   try {
-    const response = await api.get('/premium/user-premiums'); // Make sure this matches backend endpoint for premiums
+    const response = await api.get('/premium/user-premiums'); // Ensure this matches backend endpoint for premiums
     return response.data;
   } catch (error) {
     console.error('Error fetching premium information:', error);
+    throw error;
+  }
+};
+
+// Function to purchase an insurance plan
+export const purchaseInsurancePlan = async (planId) => {
+  try {
+    const response = await api.post(`/insurance-plans/${planId}/purchase`);
+    console.log("Purchase successful:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error purchasing insurance plan:', error);
     throw error;
   }
 };

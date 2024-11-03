@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { getUserPolicies } from '../../services/policiesService'; // Update import
+import { getUserPolicies } from '../../services/policiesService';
 import PolicyDetails from './PolicyDetails';
+import './UserPoliciesList.css';
 
 const UserPoliciesList = () => {
   const [policies, setPolicies] = useState([]);
@@ -9,7 +10,7 @@ const UserPoliciesList = () => {
   useEffect(() => {
     const fetchPolicies = async () => {
       try {
-        const policiesData = await getUserPolicies(); // Update function call
+        const policiesData = await getUserPolicies();
         setPolicies(policiesData);
       } catch (error) {
         setError('Failed to load policies.');
@@ -21,16 +22,15 @@ const UserPoliciesList = () => {
   }, []);
 
   return (
-    <div>
-      <h2>My Policies</h2>
+    <div className="user-policies-list-container">
       {error && <p className="alert alert-danger">{error}</p>}
-      <ul>
+      <div className="policies-grid">
         {policies.map((policy) => (
-          <li key={policy.id}>
+          <div key={policy._id} className="policy-card">
             <PolicyDetails policy={policy} />
-          </li>
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   );
 };

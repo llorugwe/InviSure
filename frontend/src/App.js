@@ -10,7 +10,8 @@ import SubmitClaim from './pages/Policyholder/SubmitClaim';
 import TrackClaim from './pages/Policyholder/TrackClaim';
 import ManageClaims from './pages/Admin/ManageClaims';
 import ManagePolicies from './pages/Admin/ManagePolicies';
-import PlanDetails from './pages/Policyholder/PlanDetails'; // Import PlanDetails component
+import PlanDetails from './pages/Policyholder/PlanDetails';
+import PurchasePage from './pages/Policyholder/PurchasePage'; // Import PurchasePage component
 import Login from './pages/Auth/Login';
 import Register from './pages/Auth/Register';
 import ForgotPassword from './pages/Auth/ForgotPassword';
@@ -29,8 +30,18 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
 
-          {/* Plan Details Page for Viewing and Purchasing */}
-          <Route path="/plan/:planId" element={<PlanDetails />} /> {/* New route for plan details */}
+          {/* Plan Details Page for Viewing */}
+          <Route path="/plan/:planId" element={<PlanDetails />} />
+
+          {/* Protected Purchase Route - Requires Authentication */}
+          <Route
+            path="/purchase/:planId"
+            element={
+              <ProtectedRoute role="policyholder"> {/* Ensures only logged-in users can access */}
+                <PurchasePage />
+              </ProtectedRoute>
+            }
+          />
 
           {/* Protected Routes for Policyholder */}
           <Route
