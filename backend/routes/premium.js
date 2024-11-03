@@ -1,15 +1,15 @@
 const express = require('express');
 const router = express.Router();
 const authMiddleware = require('../middlewares/authMiddleware');
-const InsurancePlan = require('../models/InsurancePlan');
+const Policy = require('../models/Policy');
 
-// Endpoint: GET /premium/user-premiums
+// Endpoint to retrieve all active premiums for a policyholder
 router.get('/user-premiums', authMiddleware('policyholder'), async (req, res) => {
     try {
         const userId = req.user.userId;
 
         // Retrieve premium information related to the user’s active policies
-        const premiums = await InsurancePlan.find({ userId, status: 'active' })
+        const premiums = await Policy.find({ userId, status: 'active' })
             .select('policyName premium');
 
         if (premiums.length === 0) {

@@ -1,32 +1,43 @@
 import React, { useEffect, useState } from 'react';
-import { getClaims, getPremiums, getTotalPolicies, getPendingClaims } from '../../services/claimsService';
-import UserPoliciesList from '../../components/UserPolicies/UserPoliciesList'; // Import UserPoliciesList component
+import { getClaims, getTotalPolicies, getPendingClaims } from '../../services/claimsService';
+import { getPremiums, getUserPolicies } from '../../services/policiesService';
+import { getPolicyPaymentDetails } from '../../services/paymentsService'; // Import payment-specific functions
+import UserPoliciesList from '../../components/UserPolicies/UserPoliciesList';
 
 const Dashboard = () => {
   const [premiumInfo, setPremiumInfo] = useState(null);
   const [claimHistory, setClaimHistory] = useState([]);
+  const [userPolicies, setUserPolicies] = useState([]);
+  const [paymentDetails, setPaymentDetails] = useState(null); // State for payment details
   const [error, setError] = useState(null);
 
-  // Check the user's role
   const userRole = localStorage.getItem('role');
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        // Fetch common data (claim history)
+        if (userRole === 'policyholder') {
+          const policiesData = await getUserPolicies();
+          setUserPolicies(policiesData);
+
+          const premiumData = await getPremiums();
+          setPremiumInfo(premiumData);
+
+          // Fetch payment details for each policy and aggregate information
+          const paymentPromises = policiesData.map(policy => 
+            getPolicyPaymentDetails(policy._id)
+          );
+          const paymentResults = await Promise.all(paymentPromises);
+          setPaymentDetails(paymentResults);
+
+        } else if (userRole === 'admin') {
+          const pendingClaimsData = await getPendingClaims();
+          setPremiumInfo(pendingClaimsData);
+        }
+
         const claimsData = await getClaims();
         setClaimHistory(claimsData);
 
-        // Fetch premium information based on role
-        if (userRole === 'admin') {
-          // Fetch admin-specific premium data
-          const pendingClaimsData = await getPendingClaims();
-          setPremiumInfo(pendingClaimsData);
-        } else if (userRole === 'policyholder') {
-          // Fetch policyholder-specific premium data
-          const premiumData = await getPremiums();
-          setPremiumInfo(premiumData);
-        }
       } catch (error) {
         setError('Failed to load dashboard data.');
         console.error('Error fetching dashboard data:', error);
@@ -34,8 +45,6 @@ const Dashboard = () => {
     };
 
     fetchDashboardData();
-
-    // Refresh dashboard data every 30 seconds
     const intervalId = setInterval(fetchDashboardData, 30000);
     return () => clearInterval(intervalId);
   }, [userRole]);
@@ -45,11 +54,11 @@ const Dashboard = () => {
       <h2>{userRole === 'admin' ? 'Admin Dashboard' : 'User Dashboard'}</h2>
       {error && <p className="alert alert-danger">{error}</p>}
 
-      {/* Policy Details Section - Show UserPoliciesList for policyholders */}
+      {/* Policy Details Section for Policyholders */}
       {userRole === 'policyholder' && (
         <section className="mt-4">
           <h3>My Policies</h3>
-          <UserPoliciesList /> {/* Display UserPoliciesList for the policyholder */}
+          <UserPoliciesList policies={userPolicies} />
         </section>
       )}
 
@@ -58,13 +67,44 @@ const Dashboard = () => {
         <h3>Premium Information</h3>
         {premiumInfo ? (
           <div>
-            <p><strong>Total Premium:</strong> ${premiumInfo.totalPremium}</p>
+            <p><strong>Total Premium:</strong> R {premiumInfo.totalPremium?.toLocaleString()}</p>
             <p><strong>Next Due Date:</strong> {premiumInfo.nextDueDate}</p>
           </div>
         ) : (
           <p>Premium information not available.</p>
         )}
       </section>
+
+      {/* Payments Due Section */}
+      {userRole === 'policyholder' && paymentDetails && (
+        <section className="mt-4">
+          <h3>Payments Due</h3>
+          {paymentDetails.length > 0 ? (
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>Policy Name</th>
+                  <th>Amount Due</th>
+                  <th>Next Due Date</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {paymentDetails.map((payment, index) => (
+                  <tr key={index}>
+                    <td>{userPolicies[index]?.policyName}</td>
+                    <td>R {payment.balanceDue?.toLocaleString()}</td>
+                    <td>{new Date(payment.nextDueDate).toLocaleDateString()}</td>
+                    <td>{payment.paymentStatus}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <p>No payments due.</p>
+          )}
+        </section>
+      )}
 
       {/* Claim History Section */}
       <section className="mt-4">
@@ -85,9 +125,9 @@ const Dashboard = () => {
                 <tr key={claim.id}>
                   <td>{claim.id}</td>
                   <td>{claim.description}</td>
-                  <td>${claim.amount}</td>
+                  <td>R {claim.amount?.toLocaleString()}</td>
                   <td>{claim.status}</td>
-                  <td>{claim.submissionDate}</td>
+                  <td>{new Date(claim.submissionDate).toLocaleDateString()}</td>
                 </tr>
               ))}
             </tbody>

@@ -11,7 +11,7 @@ const {
     upgradeUserToAdmin, 
     updateClaimStatus, 
     getAllClaims,
-    getAllPolicies  
+    getAvailablePolicies  
 } = require('../controllers/adminController');
 const authMiddleware = require('../middlewares/authMiddleware');
 
@@ -29,17 +29,17 @@ router.get('/claims/total', getTotalClaims);
 router.post('/register', registerAdmin);
 
 // Insurance plan management routes
-router.post('/create-plan', createInsurancePlan);          // Create a new insurance plan
-router.get('/policies', getAllPolicies);                   // Retrieve all policies
-router.put('/policies/:id', updateInsurancePlan);          // Update an existing insurance plan (adjusted route)
-router.delete('/policies/:id', deleteInsurancePlan);       // Delete an insurance plan (adjusted route)
+router.post('/create-plan', createInsurancePlan);               // Create a new insurance plan
+router.get('/policies', getAvailablePolicies);                  // Retrieve all policies
+router.put('/policies/:id', updateInsurancePlan);               // Update an existing insurance plan
+router.delete('/policies/:id', deleteInsurancePlan);            // Delete an insurance plan
 
 // User account management routes
-router.put('/update-user-status/:userId', updateUserStatus); // Approve or suspend a user
-router.put('/upgrade-to-admin/:userId', upgradeUserToAdmin); // Upgrade a user to admin
+router.put('/update-user-status/:userId', updateUserStatus);    // Approve or suspend a user
+router.put('/upgrade-to-admin/:userId', upgradeUserToAdmin);    // Upgrade a user to admin
 
 // Claim management routes
 router.put('/update-claim-status/:claimId', updateClaimStatus); // Approve or reject a claim
-router.get('/all-claims', getAllClaims);                       // Retrieve all claims
+router.get('/all-claims', getAllClaims);                        // Retrieve all claims
 
 module.exports = router;

@@ -21,7 +21,7 @@ const insurancePlanSchema = new mongoose.Schema({
     },
     startDate: { 
         type: Date, 
-        default: Date.now  // Optional: default to current date if not provided
+        default: Date.now  // Optional: defaults to current date if not provided
     },
     endDate: Date,
     status: {
@@ -33,6 +33,10 @@ const insurancePlanSchema = new mongoose.Schema({
         type: [String],
         enum: ['monthly', 'quarterly', 'yearly'],
         default: ['monthly']
+    },
+    isAvailable: {
+        type: Boolean,
+        default: true
     },
     // Array to store references to User purchases
     purchases: [{
@@ -53,9 +57,16 @@ const insurancePlanSchema = new mongoose.Schema({
     }]
 });
 
-// Static method to get active plans (For admin and user retrieval)
+// Static method to get active plans (for admin and user retrieval)
 insurancePlanSchema.statics.getActivePlans = function () {
     return this.find({ status: 'active' });
+};
+
+// Static method to get available plans for public access
+insurancePlanSchema.statics.getAvailablePolicies = function () {
+    return this.find({ isAvailable: true }).select(
+        'policyName description premiumAmount coverageAmount isAvailable'
+    );
 };
 
 // Instance method to update the purchase status of a specific user's plan

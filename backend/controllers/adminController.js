@@ -183,13 +183,16 @@ const getAllClaims = async (req, res) => {
     }
 };
 
-// Admin function to retrieve all insurance policies
-const getAllPolicies = async (req, res) => {
+// Admin function to retrieve all available (active) insurance policies
+const getAvailablePolicies = async (req, res) => {
     try {
-        const policies = await InsurancePlan.find(); // Retrieve all policies
-        res.status(200).json(policies); // Send the policies in the response
+        // Filter for only active, available policies
+        const policies = await InsurancePlan.find({ status: 'active', isAvailable: true }).select(
+            'policyName description premiumAmount coverageAmount'
+        );
+        res.status(200).json(policies);
     } catch (error) {
-        console.error('Error retrieving policies:', error);
+        console.error('Error retrieving available policies:', error);
         res.status(500).json({ message: 'Server error' });
     }
 };
@@ -206,5 +209,5 @@ module.exports = {
     upgradeUserToAdmin, 
     updateClaimStatus, 
     getAllClaims, 
-    getAllPolicies // Add this line to export the function
+    getAvailablePolicies
 };

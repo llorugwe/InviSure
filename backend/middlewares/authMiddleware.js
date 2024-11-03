@@ -1,6 +1,6 @@
 // authMiddleware.js
 const jwt = require('jsonwebtoken');
-const { refreshAccessToken } = require('../controllers/authController'); // Ensure refresh logic is accessible here
+const { refreshAccessToken } = require('../controllers/authController');
 
 const authMiddleware = (requiredRoles) => {
     return async (req, res, next) => {
@@ -38,7 +38,7 @@ const authMiddleware = (requiredRoles) => {
                 }
 
                 try {
-                    const newAccessToken = await refreshAccessToken(refreshToken); // Function to handle token refresh
+                    const newAccessToken = await refreshAccessToken(refreshToken);
                     res.setHeader('x-new-access-token', newAccessToken); // Send new token to frontend
                     return next(); // Retry the request with a refreshed token
                 } catch (refreshError) {

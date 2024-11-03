@@ -12,9 +12,10 @@ const authRoutes = require('./routes/auth');
 const insurancePlanRoutes = require('./routes/insurancePlans');
 const userRoutes = require('./routes/user');
 const premiumRoutes = require('./routes/premium');
+const paymentsRoutes = require('./routes/payments'); // New route for payments
 const claimsRoutes = require('./routes/claims');
 const adminRoutes = require('./routes/adminRoutes');
-const policyRoutes = require('./routes/policies'); // Adjusted route for policy details
+const policyRoutes = require('./routes/policies'); // Route for policy details
 
 const app = express();
 
@@ -48,13 +49,15 @@ mongoose.connect(process.env.MONGO_URL, {
 app.use('/auth', authRoutes);
 app.use('/user', userRoutes);
 app.use('/insurance-plans', insurancePlanRoutes);
-app.use('/premium', premiumRoutes);
+app.use('/premium', premiumRoutes);              // Premium route
+app.use('/payments', paymentsRoutes);            // Payments route
 app.use('/claims', claimsRoutes);
 app.use('/admin', adminRoutes);
-app.use('/api/policies', policyRoutes); // Policies route
+app.use('/api/policies', policyRoutes);          // Policies route
 
 // Handle undefined routes with a 404 response
 app.use((req, res) => {
+    console.log(`404 Error: Route ${req.method} ${req.originalUrl} not found`); // Log undefined routes
     res.status(404).json({ message: 'Route not found' });
 });
 

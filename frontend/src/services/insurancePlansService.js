@@ -1,10 +1,12 @@
+// src/services/insurancePlansService.js
 import axios from 'axios';
 
+// Set up axios instance with the base URL for backend API
 const api = axios.create({
   baseURL: 'http://localhost:5000', // Ensure this matches your backend server URL
 });
 
-// Add a request interceptor to include the access token in all requests if available
+// Interceptor to add JWT token from localStorage to request headers, if available
 api.interceptors.request.use(
   (config) => {
     const accessToken = localStorage.getItem('accessToken');
@@ -16,18 +18,20 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Function to fetch all available insurance plans for the homepage
+// Fetch all available insurance plans for the homepage
 export const getInsurancePlans = async () => {
+  console.log("Attempting to fetch insurance plans from /insurance-plans/available");
   try {
-    const response = await api.get('/insurance-plans');
+    const response = await api.get('/insurance-plans/available');
+    console.log("Received insurance plans:", response.data);
     return response.data;
   } catch (error) {
-    console.error('Error fetching insurance plans:', error);
+    console.error("Error fetching insurance plans:", error);
     throw error;
   }
 };
 
-// Function to fetch all policies for admin management
+// Admin function to fetch all policies
 export const getAllPoliciesAdmin = async () => {
   try {
     const response = await api.get('/admin/policies');
@@ -38,7 +42,7 @@ export const getAllPoliciesAdmin = async () => {
   }
 };
 
-// Function to create a new insurance policy (Admin only)
+// Admin function to create a new insurance policy
 export const createPolicy = async (policyData) => {
   try {
     const response = await api.post('/admin/create-plan', policyData);
@@ -49,7 +53,7 @@ export const createPolicy = async (policyData) => {
   }
 };
 
-// Function to update an insurance policy (Admin only)
+// Admin function to update an insurance policy by ID
 export const updatePolicy = async (policyId, updatedData) => {
   try {
     const response = await api.put(`/admin/policies/${policyId}`, updatedData);
@@ -60,7 +64,7 @@ export const updatePolicy = async (policyId, updatedData) => {
   }
 };
 
-// Function to delete an insurance policy (Admin only)
+// Admin function to delete an insurance policy by ID
 export const deletePolicy = async (policyId) => {
   try {
     const response = await api.delete(`/admin/policies/${policyId}`);
@@ -71,10 +75,10 @@ export const deletePolicy = async (policyId) => {
   }
 };
 
-// Fetch publicly available insurance plans
+// Fetch publicly available insurance plans (for non-authenticated users)
 export const getPublicInsurancePlans = async () => {
   try {
-    const response = await api.get('/insurance-plans'); // Ensure the endpoint matches the backend route
+    const response = await api.get('/insurance-plans/available'); // Ensures route matches backend
     return response.data;
   } catch (error) {
     console.error('Error fetching public insurance plans:', error);
@@ -82,7 +86,7 @@ export const getPublicInsurancePlans = async () => {
   }
 };
 
-// Function to fetch details of a specific insurance plan by ID
+// Fetch details of a specific insurance plan by ID
 export const getInsurancePlanDetails = async (planId) => {
   try {
     const response = await api.get(`/insurance-plans/${planId}`);
@@ -93,7 +97,7 @@ export const getInsurancePlanDetails = async (planId) => {
   }
 };
 
-// Function to purchase an insurance plan
+// Purchase an insurance plan by ID
 export const purchaseInsurancePlan = async (planId) => {
   try {
     const response = await api.post(`/insurance-plans/${planId}/purchase`);
@@ -102,4 +106,16 @@ export const purchaseInsurancePlan = async (planId) => {
     console.error('Error purchasing insurance plan:', error);
     throw error;
   }
+};
+
+// Exporting all functions for use in frontend components
+export default {
+  getInsurancePlans,
+  getAllPoliciesAdmin,
+  createPolicy,
+  updatePolicy,
+  deletePolicy,
+  getPublicInsurancePlans,
+  getInsurancePlanDetails,
+  purchaseInsurancePlan,
 };
