@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { getClaims, getTotalPolicies, getPendingClaims } from '../../services/claimsService';
+import { getClaims, getPendingClaims } from '../../services/claimsService';
 import { getPremiums, getUserPolicies } from '../../services/policiesService';
 import { getPolicyPaymentDetails } from '../../services/paymentsService';
+import { Link } from 'react-router-dom';
 import UserPoliciesList from '../../components/UserPolicies/UserPoliciesList';
 
 const Dashboard = () => {
@@ -97,9 +98,9 @@ const Dashboard = () => {
         </section>
       )}
 
-      {/* Claim History Section */}
+      {/* Claims Section */}
       <section className="card mb-4 p-3">
-        <h3 className="mb-3">Claim History</h3>
+        <h3 className="mb-3">Claim Management</h3>
         {claimHistory.length > 0 ? (
           <table className="table">
             <thead>
@@ -125,6 +126,17 @@ const Dashboard = () => {
           </table>
         ) : (
           <p>No claims submitted.</p>
+        )}
+        {/* Links to Submit and Track Claims */}
+        {userRole === 'policyholder' && (
+          <div className="text-center mt-3">
+            <Link to="/submit-claim" className="btn btn-primary mx-2">
+              Submit a New Claim
+            </Link>
+            <Link to="/track-claim" className="btn btn-secondary mx-2">
+              Track Claims
+            </Link>
+          </div>
         )}
       </section>
     </div>

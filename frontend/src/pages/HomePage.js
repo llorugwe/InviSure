@@ -5,7 +5,6 @@ import { getPublicInsurancePlans } from '../services/insurancePlansService';
 const HomePage = () => {
   const [plans, setPlans] = useState([]);
   const [error, setError] = useState(null);
-  const isAuthenticated = !!localStorage.getItem('accessToken'); // Check if user is logged in
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -25,15 +24,6 @@ const HomePage = () => {
   const handleViewDetails = (planId) => {
     // Navigate to the plan details page
     navigate(`/plan/${planId}`);
-  };
-
-  const handlePurchase = (planId) => {
-    if (isAuthenticated) {
-      navigate(`/purchase/${planId}`);
-    } else {
-      alert("Please register or log in to purchase an insurance plan."); // Alert if not logged in
-      navigate('/register');
-    }
   };
 
   return (
@@ -71,9 +61,6 @@ const HomePage = () => {
                   <p><strong>Premium:</strong> R {plan.premiumAmount.toLocaleString()}</p>
                   <button onClick={() => handleViewDetails(plan._id)} className="btn btn-info mx-1">
                     View Details
-                  </button>
-                  <button onClick={() => handlePurchase(plan._id)} className="btn btn-primary mx-1">
-                    {isAuthenticated ? 'Purchase' : 'Register to Purchase'}
                   </button>
                 </div>
               </div>

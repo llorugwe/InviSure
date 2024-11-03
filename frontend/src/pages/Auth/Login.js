@@ -14,22 +14,20 @@ const Login = () => {
       console.log("Attempting to log in...");
       const response = await login(email, password);
       console.log("Login response:", response);
-  
+
       const { role, accessToken } = response;
-  
+
+      // Store token and role in localStorage
       localStorage.setItem('accessToken', accessToken);
       localStorage.setItem('role', role);
-  
+
       console.log("Role stored:", role);
       console.log("Access token stored:", accessToken);
-  
-      if (role === "admin") {
-        navigate('/admin');
-      } else if (role === "policyholder") {
-        navigate('/dashboard');
-      } else {
-        navigate('/');
-      }
+
+      // Redirect based on stored path or default to user role-based dashboard
+      const redirectPath = localStorage.getItem('redirectPath') || (role === "admin" ? '/admin' : '/dashboard');
+      localStorage.removeItem('redirectPath'); // Clear the path after use
+      navigate(redirectPath);
     } catch (err) {
       console.error("Login failed:", err);
       setError('Login failed. Please check your email and password.');
