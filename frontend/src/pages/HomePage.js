@@ -11,7 +11,6 @@ const HomePage = () => {
     Car: [],
     Home: [],
     Travel: [],
-    Other: [],
   });
   const [error, setError] = useState(null);
   const navigate = useNavigate();
@@ -39,7 +38,6 @@ const HomePage = () => {
       Car: [],
       Home: [],
       Travel: [],
-      Other: [],
     };
 
     plans.forEach((plan) => {
@@ -60,7 +58,7 @@ const HomePage = () => {
           grouped.Travel.push(plan);
           break;
         default:
-          grouped.Other.push(plan);
+          console.warn(`Unrecognized insurance type: ${plan.insuranceType}`);
           break;
       }
     });
@@ -97,7 +95,7 @@ const HomePage = () => {
         <p>Explore our range of insurance plans designed to meet the needs of diverse users.</p>
         {error && <p className="alert alert-danger">{error}</p>}
 
-        {['Health', 'Life', 'Car', 'Home', 'Travel', 'Other'].map((type) => (
+        {['Health', 'Life', 'Car', 'Home', 'Travel'].map((type) => (
           <div key={type} className="plan-group mb-5">
             <h3 className="text-center">{type} Insurance</h3>
             <div className="d-flex justify-content-around flex-wrap">
@@ -108,7 +106,12 @@ const HomePage = () => {
                       <h5 className="card-title">{plan.policyName}</h5>
                       <p className="card-text">{plan.description}</p>
                       <p><strong>Coverage:</strong> R {plan.coverageAmount.toLocaleString()}</p>
-                      <p><strong>Premium:</strong> R {plan.premiumAmount.toLocaleString()}</p>
+                      {/* Display premium type: Fixed or Dynamic */}
+                      {plan.premiumType === 'Fixed' ? (
+                        <p><strong>Premium:</strong> R {plan.premiumAmount.toLocaleString()}</p>
+                      ) : (
+                        <p><strong>Premium:</strong> Calculated based on risk assessment</p>
+                      )}
                       <button onClick={() => handleViewDetails(plan._id)} className="btn btn-info mx-1">
                         View Details
                       </button>

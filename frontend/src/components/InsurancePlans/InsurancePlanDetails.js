@@ -1,98 +1,129 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { calculatePremium } from '../../services/premiumService'; // Import premium calculation function
+// src/components/InsurancePlans/PlanDetails.js
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { getInsurancePlanDetails } from '../../services/insurancePlansService';
+import PremiumCalculator from './PremiumCalculator';
+import { fetchInsuranceMetadata, calculatePremium } from '../../services/premiumService';
+import PurchaseButton from './PurchaseButton';
 
-const InsurancePlanDetails = ({ plan }) => {
-  const isAuthenticated = !!localStorage.getItem('accessToken'); // Check if the user is logged in
+const PlanDetails = () => {
+  const { planId } = useParams();
   const navigate = useNavigate();
-
-  // State for risk assessment form and calculated premium
+  const [plan, setPlan] = useState(null);
+  const [formFields, setFormFields] = useState([]); // Dynamic form fields
   const [riskData, setRiskData] = useState({});
   const [calculatedPremium, setCalculatedPremium] = useState(null);
   const [error, setError] = useState(null);
 
-  // Handle form data changes
+  useEffect(() => {
+    const fetchPlanDetails = async () => {
+      try {
+        const planData = await getInsurancePlanDetails(planId);
+        setPlan(planData);
+
+        // Only fetch metadata fields if the premium type is dynamic
+        if (planData.premiumType === 'Dynamic') {
+          fetchInsuranceMetadataFields(planData.insuranceType);
+        }
+      } catch (err) {
+        setError("Failed to load plan details.");
+      }
+    };
+
+    const fetchInsuranceMetadataFields = async (insuranceType) => {
+      try {
+        const fields = await fetchInsuranceMetadata(insuranceType);
+        if (fields && fields.length > 0) {
+          setFormFields(fields);
+        } else {
+          setError("No form fields available for this insurance type.");
+        }
+      } catch (err) {
+        console.error("Error fetching metadata:", err);
+        setError("Failed to load insurance metadata.");
+      }
+    };
+
+    fetchPlanDetails();
+  }, [planId]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setRiskData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
+    setRiskData((prevData) => ({ ...prevData, [name]: value }));
   };
 
-  // Handle form submission for premium calculation
-  const handleCalculatePremium = async () => {
+  const handleCalculatePremium = async (e) => {
+    e.preventDefault();
     try {
-      const premium = await calculatePremium(riskData);
+      const premium = await calculatePremium(planId, riskData);
       setCalculatedPremium(premium);
-      setError(null);
-    } catch (err) {
-      setError('Failed to calculate premium. Please try again.');
-    }
-  };
-
-  // Handle purchase click based on authentication
-  const handlePurchaseClick = () => {
-    if (isAuthenticated) {
-      navigate(`/purchase/${plan.id}`); // Redirect to purchase page if authenticated
-    } else {
-      navigate('/register'); // Prompt to register or login if not authenticated
+    } catch (error) {
+      setError("Failed to calculate premium.");
     }
   };
 
   return (
-    <div className="card p-4">
-      <h3>{plan.name}</h3>
-      <p><strong>Description:</strong> {plan.description}</p>
-      <p><strong>Coverage Amount:</strong> R {plan.coverageAmount}</p>
-      <p><strong>Base Premium:</strong> R {plan.premiumAmount}</p>
+    <div className="container mt-5">
+      {error && <p className="alert alert-danger">{error}</p>}
+      {plan ? (
+        <div>
+          <h1>{plan.policyName}</h1>
+          <p>{plan.description}</p>
+          <p><strong>Coverage:</strong> R {plan.coverageAmount.toLocaleString()}</p>
+          <p><strong>Insurance Type:</strong> {plan.insuranceType}</p>
 
-      {/* Risk Assessment Form */}
-      <h4>Risk Assessment</h4>
-      {plan.insuranceType === 'health' && (
-        <>
-          <div className="form-group">
-            <label>Age</label>
-            <input type="number" name="age" onChange={handleChange} className="form-control" />
-          </div>
-          <div className="form-group">
-            <label>Health Conditions</label>
-            <input type="text" name="healthConditions" onChange={handleChange} className="form-control" />
-          </div>
-          <div className="form-group">
-            <label>Smoking Status</label>
-            <select name="smokingStatus" onChange={handleChange} className="form-control">
-              <option value="">Select</option>
-              <option value="smoker">Smoker</option>
-              <option value="non-smoker">Non-Smoker</option>
-            </select>
-          </div>
-        </>
-      )}
-      {/* Add more fields for other insurance types as needed */}
+          {/* Show either the base premium or the dynamic premium calculation */}
+          {plan.premiumType === 'Fixed' ? (
+            <p><strong>Premium:</strong> R {plan.premiumAmount.toLocaleString()}</p>
+          ) : (
+            <>
+              <h3>Risk Assessment Form</h3>
+              <form onSubmit={handleCalculatePremium}>
+                {/* Dynamic form fields based on insurance type */}
+                {formFields.map((field) => (
+                  <div key={field.name} className="mb-3">
+                    <label>{field.label || field.name}</label>
+                    {field.type === "select" ? (
+                      <select
+                        name={field.name}
+                        onChange={handleChange}
+                        required={field.required}
+                        className="form-select"
+                      >
+                        <option value="">Select</option>
+                        {field.options.map((option) => (
+                          <option key={option} value={option}>{option}</option>
+                        ))}
+                      </select>
+                    ) : (
+                      <input
+                        type={field.type || "text"}
+                        name={field.name}
+                        onChange={handleChange}
+                        required={field.required}
+                        className="form-control"
+                      />
+                    )}
+                  </div>
+                ))}
+                <button type="submit" className="btn btn-info mt-3">Calculate Premium</button>
+              </form>
 
-      <button onClick={handleCalculatePremium} className="btn btn-info mt-3">
-        Calculate Premium
-      </button>
-
-      {error && <p className="alert alert-danger mt-3">{error}</p>}
-
-      {calculatedPremium && (
-        <div className="mt-4">
-          <h4>Calculated Premium: R {calculatedPremium.toLocaleString()}</h4>
-          <button onClick={handlePurchaseClick} className="btn btn-primary mt-3">
-            Confirm and Purchase
-          </button>
+              {/* Display the calculated premium and purchase button */}
+              {calculatedPremium && (
+                <div className="mt-4">
+                  <PremiumCalculator premium={calculatedPremium} />
+                  <PurchaseButton planId={planId} />
+                </div>
+              )}
+            </>
+          )}
         </div>
-      )}
-
-      {!calculatedPremium && (
-        <button onClick={handlePurchaseClick} className="btn btn-primary mt-3" disabled>
-          {isAuthenticated ? 'Calculate Premium to Purchase' : 'Register to Purchase'}
-        </button>
+      ) : (
+        <p>Loading...</p>
       )}
     </div>
   );
 };
 
-export default InsurancePlanDetails;
+export default PlanDetails;

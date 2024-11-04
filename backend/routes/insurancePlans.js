@@ -7,33 +7,48 @@ const { getAvailablePolicies } = require('../controllers/adminController');
 const router = express.Router();
 
 // Create a new insurance plan (admin only)
-router.post('/', authMiddleware(['admin']), async (req, res) => {
-    const {
-        policyName,
-        description,
-        premiumAmount,
-        coverageAmount,
-        riskFactors,
-        isAvailable,
-        insuranceType // Ensure this is included in the request body
-    } = req.body;
+router.post('/', authMiddleware('admin'), async (req, res) => {
+    console.log('POST /api/policies request received for policy creation');
 
     try {
-        const newPlan = new InsurancePlan({
+        const { policyName, description, premiumType, premiumAmount, coverageAmount, insuranceType, userId, insurancePlanId } = req.body;
+
+        // Validate required fields
+        if (!policyName || !description || !coverageAmount || !insuranceType || !premiumType) {
+            return res.status(400).json({ message: 'Missing required fields' });
+        }
+
+        // Validate premiumType logic
+        if (premiumType === 'Fixed') {
+            // If premium type is fixed, ensure a premium amount is provided
+            if (premiumAmount === null || premiumAmount === undefined) {
+                return res.status(400).json({ message: 'Fixed premium type requires a premium amount' });
+            }
+        } else if (premiumType === 'Dynamic') {
+            // If premium type is dynamic, set premiumAmount to null
+            req.body.premiumAmount = null;
+        } else {
+            return res.status(400).json({ message: 'Invalid premium type' });
+        }
+
+        // Create and save the new policy
+        const newPolicy = new Policy({
             policyName,
             description,
-            premiumAmount,
+            premiumType,
+            premiumAmount: req.body.premiumAmount, // For dynamic, this will be null
             coverageAmount,
-            riskFactors,
-            isAvailable: isAvailable || true, // Default to available unless specified
-            insuranceType // Assign insuranceType here
+            insuranceType,
+            userId,
+            insurancePlanId
         });
-
-        await newPlan.save();
-        res.status(201).json(newPlan);
+        
+        await newPolicy.save();
+        console.log('New policy created:', newPolicy);
+        res.status(201).json({ message: 'Policy created successfully', policy: newPolicy });
     } catch (err) {
-        console.error('Error creating insurance plan:', err);
-        res.status(500).json({ message: 'Server error' });
+        console.error('Error creating policy:', err);
+        res.status(500).json({ message: 'Server error: unable to create policy' });
     }
 });
 

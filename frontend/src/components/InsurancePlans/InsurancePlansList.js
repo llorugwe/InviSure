@@ -1,3 +1,4 @@
+// src/components/InsurancePlans/InsurancePlansList.js
 import React, { useEffect, useState } from 'react';
 import { getInsurancePlans } from '../../services/insurancePlansService';
 import InsurancePlanDetails from './InsurancePlanDetails';
@@ -10,7 +11,7 @@ const InsurancePlansList = () => {
     const fetchPlans = async () => {
       try {
         const plansData = await getInsurancePlans();
-        
+
         // Group plans by insuranceType
         const grouped = plansData.reduce((acc, plan) => {
           const type = plan.insuranceType || 'Other'; // Default to 'Other' if no type is specified
@@ -30,19 +31,28 @@ const InsurancePlansList = () => {
   }, []);
 
   return (
-    <div>
+    <div className="container mt-5">
       <h2>Available Insurance Plans</h2>
       {error && <p className="alert alert-danger">{error}</p>}
 
       {/* Render grouped plans by insurance type */}
       {Object.keys(groupedPlans).length > 0 ? (
         Object.keys(groupedPlans).map((type) => (
-          <div key={type} className="plan-category">
+          <div key={type} className="plan-category mb-4">
             <h3>{type} Insurance</h3>
-            <ul>
+            <ul className="list-unstyled">
               {groupedPlans[type].map((plan) => (
-                <li key={plan.id}>
+                <li key={plan._id} className="mb-3">
                   <InsurancePlanDetails plan={plan} />
+                  <div>
+                    <p><strong>Coverage:</strong> R {plan.coverageAmount.toLocaleString()}</p>
+                    {/* Check if the plan has a fixed or dynamic premium */}
+                    {plan.premiumType === 'Fixed' ? (
+                      <p><strong>Premium:</strong> R {plan.premiumAmount.toLocaleString()} (Fixed)</p>
+                    ) : (
+                      <p><strong>Premium:</strong> Dynamic (Calculated based on risk assessment)</p>
+                    )}
+                  </div>
                 </li>
               ))}
             </ul>

@@ -71,14 +71,14 @@ const registerAdmin = async (req, res) => {
 
 // Admin function to create a new insurance plan
 const createInsurancePlan = async (req, res) => {
-    const { policyName, description, premiumAmount, coverageAmount, riskFactors, isAvailable, insuranceType } = req.body; // include insuranceType
+    const { policyName, description, premiumType, premiumAmount, coverageAmount, riskFactors, isAvailable, insuranceType } = req.body; // include premiumType
     
     // Log the received data
     console.log('Received data in createInsurancePlan:', req.body);
 
     // Basic validation
-    if (!policyName || !description || !premiumAmount || !coverageAmount || !insuranceType) { // check for insuranceType
-        console.error('Missing required fields:', { policyName, description, premiumAmount, coverageAmount, insuranceType });
+    if (!policyName || !description || !premiumType || !coverageAmount || !insuranceType) { // check for premiumType as well
+        console.error('Missing required fields:', { policyName, description, premiumType, premiumAmount, coverageAmount, insuranceType });
         return res.status(400).json({ message: 'All required fields must be provided' });
     }
 
@@ -86,11 +86,12 @@ const createInsurancePlan = async (req, res) => {
         const newPlan = new InsurancePlan({
             policyName,
             description,
-            premiumAmount,
+            premiumType,  // include premiumType here
+            premiumAmount: premiumType === 'Fixed' ? premiumAmount : null, // Only set premiumAmount for Fixed
             coverageAmount,
             riskFactors,
             isAvailable: isAvailable ?? true,
-            insuranceType  // include insuranceType here
+            insuranceType
         });
         await newPlan.save();
         res.status(201).json({ message: 'Insurance plan created successfully', newPlan });

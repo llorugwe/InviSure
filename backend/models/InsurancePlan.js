@@ -16,8 +16,12 @@ const insurancePlanSchema = new mongoose.Schema({
     },
     premiumAmount: { 
         type: Number, 
-        required: true,
         min: [0, 'Premium amount must be a positive number']
+    },
+    premiumType: { 
+        type: String, 
+        enum: ['Fixed', 'Dynamic'], // Ensure only valid types are set
+        required: true 
     },
     startDate: { 
         type: Date, 
@@ -41,8 +45,7 @@ const insurancePlanSchema = new mongoose.Schema({
     insuranceType: { 
         type: String, 
         required: true,
-        enum: ['Health', 'Life', 'Car', 'Home', 'Travel', 'Other'], // Add all valid types here
-        default: 'Other'
+        enum: ['Health', 'Life', 'Car', 'Home', 'Travel'], // Add all valid types here
     },
     // Array to store references to User purchases
     purchases: [{
@@ -71,7 +74,7 @@ insurancePlanSchema.statics.getActivePlans = function () {
 // Static method to get available plans for public access
 insurancePlanSchema.statics.getAvailablePolicies = function () {
     return this.find({ isAvailable: true }).select(
-        'policyName description premiumAmount coverageAmount insuranceType isAvailable'
+        'policyName description premiumAmount premiumType coverageAmount insuranceType isAvailable'
     );
 };
 

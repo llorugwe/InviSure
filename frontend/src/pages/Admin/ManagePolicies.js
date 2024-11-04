@@ -12,6 +12,7 @@ const ManagePolicies = () => {
   const [policyData, setPolicyData] = useState({
     policyName: '',
     description: '',
+    premiumType: 'Fixed', // New field for premium type
     premiumAmount: 0,
     coverageAmount: 0,
     riskFactors: [],
@@ -35,19 +36,34 @@ const ManagePolicies = () => {
   }, []);
 
   const handleCreateOrEditPolicy = async () => {
+    const payload = { ...policyData };
+    
+    // Only include premiumAmount if the premiumType is Fixed
+    if (policyData.premiumType === 'Dynamic') {
+      delete payload.premiumAmount;
+    }
+  
     try {
       if (isEditing) {
-        await updatePolicy(editPolicyId, policyData);
+        await updatePolicy(editPolicyId, payload);
       } else {
-        await createPolicy(policyData);
+        await createPolicy(payload);
       }
       setShowModal(false);
+      // Reset form after submission
       setPolicyData({
-        policyName: '', description: '', premiumAmount: 0, coverageAmount: 0, riskFactors: [], isAvailable: true, insuranceType: ''
+        policyName: '',
+        description: '',
+        premiumType: 'Fixed',
+        premiumAmount: 0,
+        coverageAmount: 0,
+        riskFactors: [],
+        isAvailable: true,
+        insuranceType: ''
       });
       setIsEditing(false);
       setEditPolicyId(null);
-
+  
       const updatedPolicies = await getAllPoliciesAdmin();
       setPolicies(updatedPolicies);
       setError(null);
@@ -73,11 +89,12 @@ const ManagePolicies = () => {
     setPolicyData({
       policyName: policy.policyName || '',
       description: policy.description || '',
+      premiumType: policy.premiumType || 'Fixed',
       premiumAmount: policy.premiumAmount || 0,
       coverageAmount: policy.coverageAmount || 0,
       riskFactors: policy.riskFactors || [],
       isAvailable: policy.isAvailable !== undefined ? policy.isAvailable : true,
-      insuranceType: policy.insuranceType || '', // Ensure insurance type is captured
+      insuranceType: policy.insuranceType || '',
     });
     setShowModal(true);
   };
@@ -87,7 +104,7 @@ const ManagePolicies = () => {
       <h1>Manage Policies</h1>
       {error && <p className="alert alert-danger">{error}</p>}
 
-      <button onClick={() => { setShowModal(true); setIsEditing(false); setPolicyData({ policyName: '', description: '', premiumAmount: 0, coverageAmount: 0, riskFactors: [], isAvailable: true, insuranceType: '' }); }} className="btn btn-primary mb-3">
+      <button onClick={() => { setShowModal(true); setIsEditing(false); setPolicyData({ policyName: '', description: '', premiumType: 'Fixed', premiumAmount: 0, coverageAmount: 0, riskFactors: [], isAvailable: true, insuranceType: '' }); }} className="btn btn-primary mb-3">
         Create New Policy
       </button>
 
@@ -108,12 +125,28 @@ const ManagePolicies = () => {
                 value={policyData.description}
                 onChange={(e) => setPolicyData({ ...policyData, description: e.target.value })}
               />
-              <label>Premium Amount:</label>
-              <input
-                type="number"
-                value={policyData.premiumAmount}
-                onChange={(e) => setPolicyData({ ...policyData, premiumAmount: Number(e.target.value) })}
-              />
+              
+              <label>Premium Type:</label>
+              <select
+                value={policyData.premiumType}
+                onChange={(e) => setPolicyData({ ...policyData, premiumType: e.target.value })}
+              >
+                <option value="Fixed">Fixed</option>
+                <option value="Dynamic">Dynamic</option>
+              </select>
+              
+              {/* Show premium amount field only if Fixed premium is selected */}
+              {policyData.premiumType === 'Fixed' && (
+                <>
+                  <label>Premium Amount:</label>
+                  <input
+                    type="number"
+                    value={policyData.premiumAmount}
+                    onChange={(e) => setPolicyData({ ...policyData, premiumAmount: Number(e.target.value) })}
+                  />
+                </>
+              )}
+              
               <label>Coverage Amount:</label>
               <input
                 type="number"
@@ -162,9 +195,10 @@ const ManagePolicies = () => {
           <tr>
             <th>Name</th>
             <th>Description</th>
+            <th>Premium Type</th>
             <th>Premium Amount</th>
             <th>Coverage Amount</th>
-            <th>Type</th> {/* New column for insurance type */}
+            <th>Type</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -173,9 +207,10 @@ const ManagePolicies = () => {
             <tr key={policy._id}>
               <td>{policy.policyName}</td>
               <td>{policy.description}</td>
-              <td>R {policy.premiumAmount?.toLocaleString()}</td>
+              <td>{policy.premiumType}</td> {/* Display premium type */}
+              <td>{policy.premiumType === 'Fixed' ? `R ${policy.premiumAmount?.toLocaleString()}` : 'Calculated based on risk assessment'}</td>
               <td>R {policy.coverageAmount?.toLocaleString()}</td>
-              <td>{policy.insuranceType || 'N/A'}</td> {/* Display insurance type */}
+              <td>{policy.insuranceType || 'N/A'}</td>
               <td>
                 <button className="btn btn-warning btn-sm" onClick={() => handleEditClick(policy)}>Edit</button>
                 <button className="btn btn-danger btn-sm" onClick={() => handleDeletePolicy(policy._id)}>Delete</button>

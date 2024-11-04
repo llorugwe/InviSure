@@ -1,4 +1,3 @@
-// services/policiesService.js
 import axios from 'axios';
 
 const api = axios.create({
@@ -20,12 +19,20 @@ api.interceptors.request.use(
 // Function to fetch all policies, optionally filtered by insurance type
 export const fetchPolicies = async (insuranceType = '') => {
   try {
-    // Fetch policies with optional type filter
     const response = await api.get('/api/policies', {
-      params: { type: insuranceType }, // Pass insurance type as a query parameter if specified
+      params: { type: insuranceType },
     });
-    console.log("Fetched policies:", response.data);
-    return response.data;
+    
+    // Map through policies to add premium display logic
+    const policiesWithDisplayPremium = response.data.map((policy) => ({
+      ...policy,
+      displayPremium: policy.premiumType === 'Fixed'
+        ? `R ${policy.premiumAmount?.toLocaleString()}`
+        : 'Calculated based on risk assessment',
+    }));
+    
+    console.log("Fetched policies with premium display:", policiesWithDisplayPremium);
+    return policiesWithDisplayPremium;
   } catch (error) {
     console.error("Error fetching policies:", error);
     throw error;
@@ -49,8 +56,14 @@ export const getUserPolicies = async () => {
   console.log("Attempting to fetch user policies from /api/policies");
   try {
     const response = await api.get('/api/policies');
-    console.log("Received user policies:", response.data);
-    return response.data;
+    const userPoliciesWithDisplayPremium = response.data.map((policy) => ({
+      ...policy,
+      displayPremium: policy.premiumType === 'Fixed'
+        ? `R ${policy.premiumAmount?.toLocaleString()}`
+        : 'Calculated based on risk assessment',
+    }));
+    console.log("Received user policies:", userPoliciesWithDisplayPremium);
+    return userPoliciesWithDisplayPremium;
   } catch (error) {
     console.error("Error fetching user policies:", error);
     throw error;
@@ -60,7 +73,7 @@ export const getUserPolicies = async () => {
 // Function to retrieve premium information for each policy
 export const getPremiums = async () => {
   try {
-    const response = await api.get('/premium/user-premiums'); // Ensure this matches backend endpoint for premiums
+    const response = await api.get('/premium/user-premiums');
     return response.data;
   } catch (error) {
     console.error('Error fetching premium information:', error);

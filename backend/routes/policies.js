@@ -7,24 +7,22 @@ const Policy = require('../models/Policy');
 
 // GET /api/policies - Retrieve all policies for the authenticated policyholder with optional filtering by insuranceType
 router.get('/', authMiddleware('policyholder'), async (req, res) => {
-    console.log('GET /api/policies request received'); // Log the request
+    console.log('GET /api/policies request received'); 
 
     try {
         const userId = req.user.userId;
-        const { insuranceType } = req.query; // Retrieve optional insuranceType query parameter
+        const { insuranceType } = req.query; 
 
-        console.log(`Fetching policies for user ID: ${userId} with type: ${insuranceType || 'all'}`); // Log user ID and type
+        console.log(`Fetching policies for user ID: ${userId} with type: ${insuranceType || 'all'}`); 
 
         // Filter policies by userId and optional insuranceType
         const filter = { userId };
-        if (insuranceType) {
-            filter.insuranceType = insuranceType; // Apply type filter if provided
-        }
+        if (insuranceType) filter.insuranceType = insuranceType;
 
         const policies = await Policy.find(filter)
-            .select('policyName description coverageAmount premiumAmount insuranceType startDate endDate status');
+            .select('policyName description coverageAmount premiumAmount insuranceType startDate endDate status premiumType');
         
-        console.log('Policies retrieved:', policies); // Log retrieved policies
+        console.log('Policies retrieved:', policies);
 
         if (policies.length === 0) {
             console.log('No policies found for this user');
@@ -40,11 +38,11 @@ router.get('/', authMiddleware('policyholder'), async (req, res) => {
 
 // GET /api/policies/:id - View specific policy details
 router.get('/:id', authMiddleware(['policyholder']), async (req, res) => {
-    console.log(`GET /api/policies/${req.params.id} request received`); // Log the request
+    console.log(`GET /api/policies/${req.params.id} request received`);
 
     try {
         const userId = req.user.userId;
-        console.log(`Fetching policy with ID: ${req.params.id} for user ID: ${userId}`); // Log user and policy ID
+        console.log(`Fetching policy with ID: ${req.params.id} for user ID: ${userId}`);
 
         const policy = await Policy.findOne({ _id: req.params.id, userId });
 
@@ -53,7 +51,7 @@ router.get('/:id', authMiddleware(['policyholder']), async (req, res) => {
             return res.status(404).json({ message: 'Policy not found or access denied' });
         }
 
-        console.log('Policy details retrieved:', policy); // Log the retrieved policy
+        console.log('Policy details retrieved:', policy);
         res.status(200).json(policy);
     } catch (err) {
         console.error('Error retrieving policy:', err);
@@ -63,12 +61,12 @@ router.get('/:id', authMiddleware(['policyholder']), async (req, res) => {
 
 // PUT /api/policies/:id - Update policy (e.g., payment status, beneficiary details)
 router.put('/:id', authMiddleware(['policyholder']), async (req, res) => {
-    console.log(`PUT /api/policies/${req.params.id} request received`); // Log the request
+    console.log(`PUT /api/policies/${req.params.id} request received`);
 
     try {
         const userId = req.user.userId;
         const updateData = req.body;
-        console.log(`Updating policy with ID: ${req.params.id} for user ID: ${userId} with data:`, updateData); // Log update data
+        console.log(`Updating policy with ID: ${req.params.id} for user ID: ${userId} with data:`, updateData);
 
         const policy = await Policy.findOneAndUpdate(
             { _id: req.params.id, userId },
@@ -81,7 +79,7 @@ router.put('/:id', authMiddleware(['policyholder']), async (req, res) => {
             return res.status(404).json({ message: 'Policy not found or access denied' });
         }
 
-        console.log('Policy updated successfully:', policy); // Log the updated policy
+        console.log('Policy updated successfully:', policy);
         res.status(200).json({ message: 'Policy updated successfully', policy });
     } catch (err) {
         console.error('Error updating policy:', err);
@@ -91,11 +89,11 @@ router.put('/:id', authMiddleware(['policyholder']), async (req, res) => {
 
 // DELETE /api/policies/:id - Request policy termination
 router.delete('/:id', authMiddleware(['policyholder']), async (req, res) => {
-    console.log(`DELETE /api/policies/${req.params.id} request received`); // Log the request
+    console.log(`DELETE /api/policies/${req.params.id} request received`);
 
     try {
         const userId = req.user.userId;
-        console.log(`Attempting to delete policy with ID: ${req.params.id} for user ID: ${userId}`); // Log deletion attempt
+        console.log(`Attempting to delete policy with ID: ${req.params.id} for user ID: ${userId}`);
 
         const policy = await Policy.findOneAndDelete({ _id: req.params.id, userId });
 
@@ -104,7 +102,7 @@ router.delete('/:id', authMiddleware(['policyholder']), async (req, res) => {
             return res.status(404).json({ message: 'Policy not found or access denied' });
         }
 
-        console.log('Policy termination request successful'); // Log successful deletion
+        console.log('Policy termination request successful');
         res.status(200).json({ message: 'Policy termination request successful' });
     } catch (err) {
         console.error('Error terminating policy:', err);
@@ -112,31 +110,40 @@ router.delete('/:id', authMiddleware(['policyholder']), async (req, res) => {
     }
 });
 
-// POST /api/policies - Create a new policy with insuranceType
+// POST /api/policies - Create a new policy with fixed or dynamic premium
 router.post('/', authMiddleware('admin'), async (req, res) => {
-    console.log('POST /api/policies request received for policy creation'); // Log request
+    console.log('POST /api/policies request received for policy creation');
 
     try {
-        const { policyName, description, coverageAmount, premiumAmount, insuranceType, userId, insurancePlanId } = req.body;
+        const { policyName, description, premiumType, premiumAmount, coverageAmount, insuranceType, userId, insurancePlanId } = req.body;
 
-        // Validate if insuranceType is provided
-        if (!insuranceType || !['Health', 'Life', 'Car'].includes(insuranceType)) {
-            return res.status(400).json({ message: 'Invalid or missing insurance type' });
+        // Validate required fields
+        if (!policyName || !description || !coverageAmount || !insuranceType) {
+            return res.status(400).json({ message: 'Missing required fields' });
+        }
+
+        // Validate premiumType logic
+        if (premiumType === 'Fixed' && (premiumAmount === null || premiumAmount === undefined)) {
+            return res.status(400).json({ message: 'Fixed premium type requires a premium amount' });
+        }
+        if (premiumType === 'Dynamic') {
+            req.body.premiumAmount = null; // Ignore premiumAmount if Dynamic
         }
 
         // Create and save the new policy
         const newPolicy = new Policy({
             policyName,
             description,
+            premiumType,
+            premiumAmount: req.body.premiumAmount, // Use null for dynamic premium
             coverageAmount,
-            premiumAmount,
             insuranceType,
             userId,
             insurancePlanId
         });
         
         await newPolicy.save();
-        console.log('New policy created:', newPolicy); // Log created policy
+        console.log('New policy created:', newPolicy);
         res.status(201).json({ message: 'Policy created successfully', policy: newPolicy });
     } catch (err) {
         console.error('Error creating policy:', err);

@@ -12,10 +12,12 @@ const authRoutes = require('./routes/auth');
 const insurancePlanRoutes = require('./routes/insurancePlans');
 const userRoutes = require('./routes/user');
 const premiumRoutes = require('./routes/premium');
-const paymentsRoutes = require('./routes/payments'); // New route for payments
+const paymentsRoutes = require('./routes/payments'); // Payments route
 const claimsRoutes = require('./routes/claims');
 const adminRoutes = require('./routes/adminRoutes');
-const policyRoutes = require('./routes/policies'); // Route for policy details
+const policyRoutes = require('./routes/policies'); // Policy details route
+const insuranceMetadataRoutes = require('./routes/insuranceMetadata'); // Metadata route
+const premiumCalculatorRoutes = require('./routes/premiumCalculator'); // Premium calculation route
 
 const app = express();
 
@@ -54,6 +56,8 @@ app.use('/payments', paymentsRoutes);            // Payments route
 app.use('/claims', claimsRoutes);
 app.use('/admin', adminRoutes);
 app.use('/api/policies', policyRoutes);          // Policies route
+app.use('/api/insurance-metadata', insuranceMetadataRoutes); // Insurance metadata route
+app.use('/api/premium', premiumCalculatorRoutes); // Premium calculator route
 
 // Handle undefined routes with a 404 response
 app.use((req, res) => {

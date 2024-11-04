@@ -10,7 +10,7 @@ import SubmitClaim from './pages/Policyholder/SubmitClaim';
 import TrackClaim from './pages/Policyholder/TrackClaim';
 import ManageClaims from './pages/Admin/ManageClaims';
 import ManagePolicies from './pages/Admin/ManagePolicies';
-import PlanDetails from './pages/Policyholder/PlanDetails';
+import PlanDetails from './components/InsurancePlans/InsurancePlanDetails';
 import PurchasePage from './pages/Policyholder/PurchasePage';
 import Login from './pages/Auth/Login';
 import Register from './pages/Auth/Register';
