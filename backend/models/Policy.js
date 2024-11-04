@@ -36,6 +36,12 @@ const policySchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'InsurancePlan',
         required: true
+    },
+    // New field for policy type
+    insuranceType: {
+        type: String,
+        enum: ['Health', 'Life', 'Car'], // Define allowed types here
+        required: true
     }
 });
 

@@ -5,16 +5,24 @@ const router = express.Router();
 const authMiddleware = require('../middlewares/authMiddleware');
 const Policy = require('../models/Policy');
 
-// GET /api/policies - Retrieve all policies for the authenticated policyholder
+// GET /api/policies - Retrieve all policies for the authenticated policyholder with optional filtering by insuranceType
 router.get('/', authMiddleware('policyholder'), async (req, res) => {
     console.log('GET /api/policies request received'); // Log the request
 
     try {
         const userId = req.user.userId;
-        console.log(`Fetching policies for user ID: ${userId}`); // Log user ID
+        const { insuranceType } = req.query; // Retrieve optional insuranceType query parameter
 
-        const policies = await Policy.find({ userId })
-            .select('policyName description coverageAmount premiumAmount startDate endDate status');
+        console.log(`Fetching policies for user ID: ${userId} with type: ${insuranceType || 'all'}`); // Log user ID and type
+
+        // Filter policies by userId and optional insuranceType
+        const filter = { userId };
+        if (insuranceType) {
+            filter.insuranceType = insuranceType; // Apply type filter if provided
+        }
+
+        const policies = await Policy.find(filter)
+            .select('policyName description coverageAmount premiumAmount insuranceType startDate endDate status');
         
         console.log('Policies retrieved:', policies); // Log retrieved policies
 
@@ -39,7 +47,7 @@ router.get('/:id', authMiddleware(['policyholder']), async (req, res) => {
         console.log(`Fetching policy with ID: ${req.params.id} for user ID: ${userId}`); // Log user and policy ID
 
         const policy = await Policy.findOne({ _id: req.params.id, userId });
-        
+
         if (!policy) {
             console.log('Policy not found or access denied');
             return res.status(404).json({ message: 'Policy not found or access denied' });
@@ -101,6 +109,38 @@ router.delete('/:id', authMiddleware(['policyholder']), async (req, res) => {
     } catch (err) {
         console.error('Error terminating policy:', err);
         res.status(500).json({ message: 'Server error: unable to terminate policy' });
+    }
+});
+
+// POST /api/policies - Create a new policy with insuranceType
+router.post('/', authMiddleware('admin'), async (req, res) => {
+    console.log('POST /api/policies request received for policy creation'); // Log request
+
+    try {
+        const { policyName, description, coverageAmount, premiumAmount, insuranceType, userId, insurancePlanId } = req.body;
+
+        // Validate if insuranceType is provided
+        if (!insuranceType || !['Health', 'Life', 'Car'].includes(insuranceType)) {
+            return res.status(400).json({ message: 'Invalid or missing insurance type' });
+        }
+
+        // Create and save the new policy
+        const newPolicy = new Policy({
+            policyName,
+            description,
+            coverageAmount,
+            premiumAmount,
+            insuranceType,
+            userId,
+            insurancePlanId
+        });
+        
+        await newPolicy.save();
+        console.log('New policy created:', newPolicy); // Log created policy
+        res.status(201).json({ message: 'Policy created successfully', policy: newPolicy });
+    } catch (err) {
+        console.error('Error creating policy:', err);
+        res.status(500).json({ message: 'Server error: unable to create policy' });
     }
 });
 

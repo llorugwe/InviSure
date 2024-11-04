@@ -38,6 +38,12 @@ const insurancePlanSchema = new mongoose.Schema({
         type: Boolean,
         default: true
     },
+    insuranceType: { 
+        type: String, 
+        required: true,
+        enum: ['Health', 'Life', 'Car', 'Home', 'Travel', 'Other'], // Add all valid types here
+        default: 'Other'
+    },
     // Array to store references to User purchases
     purchases: [{
         userId: {
@@ -65,7 +71,7 @@ insurancePlanSchema.statics.getActivePlans = function () {
 // Static method to get available plans for public access
 insurancePlanSchema.statics.getAvailablePolicies = function () {
     return this.find({ isAvailable: true }).select(
-        'policyName description premiumAmount coverageAmount isAvailable'
+        'policyName description premiumAmount coverageAmount insuranceType isAvailable'
     );
 };
 

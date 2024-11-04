@@ -1,9 +1,18 @@
+// src/pages/HomePage.js
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getPublicInsurancePlans } from '../services/insurancePlansService';
 
 const HomePage = () => {
   const [plans, setPlans] = useState([]);
+  const [groupedPlans, setGroupedPlans] = useState({
+    Health: [],
+    Life: [],
+    Car: [],
+    Home: [],
+    Travel: [],
+    Other: [],
+  });
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
@@ -13,6 +22,7 @@ const HomePage = () => {
       try {
         const data = await getPublicInsurancePlans();
         setPlans(data);
+        groupPlansByType(data);
       } catch (error) {
         setError("Failed to load insurance plans.");
         console.error("Error fetching insurance plans:", error);
@@ -21,8 +31,44 @@ const HomePage = () => {
     fetchPlans();
   }, []);
 
+  // Function to group plans by type
+  const groupPlansByType = (plans) => {
+    const grouped = {
+      Health: [],
+      Life: [],
+      Car: [],
+      Home: [],
+      Travel: [],
+      Other: [],
+    };
+
+    plans.forEach((plan) => {
+      switch (plan.insuranceType) {
+        case 'Health':
+          grouped.Health.push(plan);
+          break;
+        case 'Life':
+          grouped.Life.push(plan);
+          break;
+        case 'Car':
+          grouped.Car.push(plan);
+          break;
+        case 'Home':
+          grouped.Home.push(plan);
+          break;
+        case 'Travel':
+          grouped.Travel.push(plan);
+          break;
+        default:
+          grouped.Other.push(plan);
+          break;
+      }
+    });
+
+    setGroupedPlans(grouped);
+  };
+
   const handleViewDetails = (planId) => {
-    // Navigate to the plan details page
     navigate(`/plan/${planId}`);
   };
 
@@ -45,30 +91,36 @@ const HomePage = () => {
         <p className="mt-3">Login to access your dashboard, or register to join and start managing your policies.</p>
       </section>
 
-      {/* Highlights of Insurance Products */}
+      {/* Grouped Insurance Products */}
       <section className="insurance-preview mt-5">
         <h2>Our Insurance Plans</h2>
         <p>Explore our range of insurance plans designed to meet the needs of diverse users.</p>
         {error && <p className="alert alert-danger">{error}</p>}
-        {plans.length > 0 ? (
-          <div className="plans-list d-flex justify-content-around flex-wrap">
-            {plans.map((plan) => (
-              <div key={plan._id} className="card m-2" style={{ width: '18rem' }}>
-                <div className="card-body">
-                  <h5 className="card-title">{plan.policyName}</h5>
-                  <p className="card-text">{plan.description}</p>
-                  <p><strong>Coverage:</strong> R {plan.coverageAmount.toLocaleString()}</p>
-                  <p><strong>Premium:</strong> R {plan.premiumAmount.toLocaleString()}</p>
-                  <button onClick={() => handleViewDetails(plan._id)} className="btn btn-info mx-1">
-                    View Details
-                  </button>
-                </div>
-              </div>
-            ))}
+
+        {['Health', 'Life', 'Car', 'Home', 'Travel', 'Other'].map((type) => (
+          <div key={type} className="plan-group mb-5">
+            <h3 className="text-center">{type} Insurance</h3>
+            <div className="d-flex justify-content-around flex-wrap">
+              {groupedPlans[type].length > 0 ? (
+                groupedPlans[type].map((plan) => (
+                  <div key={plan._id} className="card m-2" style={{ width: '18rem' }}>
+                    <div className="card-body">
+                      <h5 className="card-title">{plan.policyName}</h5>
+                      <p className="card-text">{plan.description}</p>
+                      <p><strong>Coverage:</strong> R {plan.coverageAmount.toLocaleString()}</p>
+                      <p><strong>Premium:</strong> R {plan.premiumAmount.toLocaleString()}</p>
+                      <button onClick={() => handleViewDetails(plan._id)} className="btn btn-info mx-1">
+                        View Details
+                      </button>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p>No {type.toLowerCase()} insurance plans available at the moment.</p>
+              )}
+            </div>
           </div>
-        ) : (
-          <p>No insurance plans available at the moment. Please check back later.</p>
-        )}
+        ))}
       </section>
 
       {/* Footer Links */}

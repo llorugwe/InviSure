@@ -11,7 +11,7 @@ import TrackClaim from './pages/Policyholder/TrackClaim';
 import ManageClaims from './pages/Admin/ManageClaims';
 import ManagePolicies from './pages/Admin/ManagePolicies';
 import PlanDetails from './pages/Policyholder/PlanDetails';
-import PurchasePage from './pages/Policyholder/PurchasePage'; // Import PurchasePage component
+import PurchasePage from './pages/Policyholder/PurchasePage';
 import Login from './pages/Auth/Login';
 import Register from './pages/Auth/Register';
 import ForgotPassword from './pages/Auth/ForgotPassword';
@@ -37,7 +37,7 @@ function App() {
           <Route
             path="/purchase/:planId"
             element={
-              <ProtectedRoute role="policyholder"> {/* Ensures only logged-in users can access */}
+              <ProtectedRoute role="policyholder">
                 <PurchasePage />
               </ProtectedRoute>
             }
@@ -88,6 +88,15 @@ function App() {
           />
           <Route
             path="/admin/manage-policies"
+            element={
+              <ProtectedRoute role="admin">
+                <ManagePolicies />
+              </ProtectedRoute>
+            }
+          />
+          {/* Dynamic Route for Specific Policy Viewing/Editing by ID */}
+          <Route
+            path="/admin/manage-policies/:policyId"
             element={
               <ProtectedRoute role="admin">
                 <ManagePolicies />

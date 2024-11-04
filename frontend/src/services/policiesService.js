@@ -17,6 +17,33 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+// Function to fetch all policies, optionally filtered by insurance type
+export const fetchPolicies = async (insuranceType = '') => {
+  try {
+    // Fetch policies with optional type filter
+    const response = await api.get('/api/policies', {
+      params: { type: insuranceType }, // Pass insurance type as a query parameter if specified
+    });
+    console.log("Fetched policies:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching policies:", error);
+    throw error;
+  }
+};
+
+// Function to create a new insurance policy (Admin only)
+export const createPolicy = async (policyData) => {
+  try {
+    const response = await api.post('/api/policies', policyData);
+    console.log("Policy created:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error creating policy:", error);
+    throw error;
+  }
+};
+
 // Function to fetch all policies associated with the logged-in user
 export const getUserPolicies = async () => {
   console.log("Attempting to fetch user policies from /api/policies");

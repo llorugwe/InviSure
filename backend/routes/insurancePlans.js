@@ -2,13 +2,22 @@ const express = require('express');
 const InsurancePlan = require('../models/InsurancePlan');
 const Policy = require('../models/Policy');
 const authMiddleware = require('../middlewares/authMiddleware');
-const { getAvailablePolicies } = require('../controllers/adminController'); // Ensure this import
+const { getAvailablePolicies } = require('../controllers/adminController');
 
 const router = express.Router();
 
 // Create a new insurance plan (admin only)
 router.post('/', authMiddleware(['admin']), async (req, res) => {
-    const { policyName, description, premiumAmount, coverageAmount, riskFactors, isAvailable } = req.body;
+    const {
+        policyName,
+        description,
+        premiumAmount,
+        coverageAmount,
+        riskFactors,
+        isAvailable,
+        insuranceType // Ensure this is included in the request body
+    } = req.body;
+
     try {
         const newPlan = new InsurancePlan({
             policyName,
@@ -16,8 +25,10 @@ router.post('/', authMiddleware(['admin']), async (req, res) => {
             premiumAmount,
             coverageAmount,
             riskFactors,
-            isAvailable: isAvailable || true // Default to available unless specified
+            isAvailable: isAvailable || true, // Default to available unless specified
+            insuranceType // Assign insuranceType here
         });
+
         await newPlan.save();
         res.status(201).json(newPlan);
     } catch (err) {
@@ -28,7 +39,7 @@ router.post('/', authMiddleware(['admin']), async (req, res) => {
 
 // Public endpoint to get all available insurance plans
 router.get('/available', async (req, res) => {
-    console.log('GET /insurance-plans/available request received'); // Log the request
+    console.log('GET /insurance-plans/available request received');
     try {
         const plans = await InsurancePlan.getAvailablePolicies();
         res.status(200).json(plans);
@@ -37,6 +48,7 @@ router.get('/available', async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 });
+
 // Get a specific insurance plan by ID (publicly accessible)
 router.get('/:id', async (req, res) => {
     try {
@@ -65,6 +77,7 @@ router.post('/:id/purchase', authMiddleware(['policyholder']), async (req, res) 
             policyName: plan.policyName,
             description: plan.description,
             coverageAmount: plan.coverageAmount,
+            insuranceType: plan.insuranceType, // Include insuranceType here
             startDate: new Date(),
             endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)), // Default to 1-year duration
             status: 'active',
@@ -76,7 +89,7 @@ router.post('/:id/purchase', authMiddleware(['policyholder']), async (req, res) 
                 balanceDue: plan.premiumAmount,
             }
         });
-        
+
         await newPolicy.save();
         res.status(200).json({ message: 'Insurance plan purchased successfully', policy: newPolicy });
     } catch (err) {
