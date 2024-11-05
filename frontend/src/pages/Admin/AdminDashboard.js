@@ -71,8 +71,11 @@ const AdminDashboard = () => {
                     <div className="card-body">
                       <h5 className="card-title">{plan.policyName}</h5>
                       <p className="card-text">{plan.description}</p>
-                      <p><strong>Coverage:</strong> R {plan.coverageAmount.toLocaleString()}</p>
-                      <p><strong>Premium:</strong> R {plan.premiumAmount.toLocaleString()}</p>
+                      <p><strong>Coverage:</strong> R {plan.coverageAmount != null ? plan.coverageAmount.toLocaleString() : 'N/A'}</p>
+                      <p><strong>Premium:</strong> {plan.premiumType === 'Fixed' ? 
+                         `R ${plan.premiumAmount != null ? plan.premiumAmount.toLocaleString() : 'N/A'}` 
+                         : 'Calculated based on risk assessment'}
+                      </p>
                       <Link to={`/admin/manage-policies/${plan._id}`} className="btn btn-info mt-2">
                         Manage Policy
                       </Link>

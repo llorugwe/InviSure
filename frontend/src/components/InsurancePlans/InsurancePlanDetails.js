@@ -78,36 +78,42 @@ const PlanDetails = () => {
           ) : (
             <>
               <h3>Risk Assessment Form</h3>
-              <form onSubmit={handleCalculatePremium}>
-                {/* Dynamic form fields based on insurance type */}
-                {formFields.map((field) => (
-                  <div key={field.name} className="mb-3">
-                    <label>{field.label || field.name}</label>
-                    {field.type === "select" ? (
-                      <select
-                        name={field.name}
-                        onChange={handleChange}
-                        required={field.required}
-                        className="form-select"
-                      >
-                        <option value="">Select</option>
-                        {field.options.map((option) => (
-                          <option key={option} value={option}>{option}</option>
-                        ))}
-                      </select>
-                    ) : (
-                      <input
-                        type={field.type || "text"}
-                        name={field.name}
-                        onChange={handleChange}
-                        required={field.required}
-                        className="form-control"
-                      />
-                    )}
-                  </div>
-                ))}
-                <button type="submit" className="btn btn-info mt-3">Calculate Premium</button>
-              </form>
+              
+              {/* Display a message if no form fields are available */}
+              {formFields.length > 0 ? (
+                <form onSubmit={handleCalculatePremium}>
+                  {/* Dynamic form fields based on insurance type */}
+                  {formFields.map((field) => (
+                    <div key={field.name} className="mb-3">
+                      <label>{field.label || field.name}</label>
+                      {field.type === "select" ? (
+                        <select
+                          name={field.name}
+                          onChange={handleChange}
+                          required={field.required}
+                          className="form-select"
+                        >
+                          <option value="">Select</option>
+                          {field.options.map((option) => (
+                            <option key={option} value={option}>{option}</option>
+                          ))}
+                        </select>
+                      ) : (
+                        <input
+                          type={field.type || "text"}
+                          name={field.name}
+                          onChange={handleChange}
+                          required={field.required}
+                          className="form-control"
+                        />
+                      )}
+                    </div>
+                  ))}
+                  <button type="submit" className="btn btn-info mt-3">Calculate Premium</button>
+                </form>
+              ) : (
+                <p>No dynamic form fields are available for this insurance type.</p>
+              )}
 
               {/* Display the calculated premium and purchase button */}
               {calculatedPremium && (

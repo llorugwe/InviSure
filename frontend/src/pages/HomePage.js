@@ -1,4 +1,3 @@
-// src/pages/HomePage.js
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getPublicInsurancePlans } from '../services/insurancePlansService';
@@ -105,10 +104,10 @@ const HomePage = () => {
                     <div className="card-body">
                       <h5 className="card-title">{plan.policyName}</h5>
                       <p className="card-text">{plan.description}</p>
-                      <p><strong>Coverage:</strong> R {plan.coverageAmount.toLocaleString()}</p>
+                      <p><strong>Coverage:</strong> R {plan.coverageAmount ? plan.coverageAmount.toLocaleString() : 'N/A'}</p>
                       {/* Display premium type: Fixed or Dynamic */}
                       {plan.premiumType === 'Fixed' ? (
-                        <p><strong>Premium:</strong> R {plan.premiumAmount.toLocaleString()}</p>
+                        <p><strong>Premium:</strong> R {plan.premiumAmount ? plan.premiumAmount.toLocaleString() : 'N/A'}</p>
                       ) : (
                         <p><strong>Premium:</strong> Calculated based on risk assessment</p>
                       )}
