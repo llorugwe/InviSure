@@ -1,9 +1,16 @@
 // src/components/InsurancePlans/PremiumCalculator.js
-import React from 'react';
+import React, { useEffect } from 'react';
 
 const PremiumCalculator = ({ premium, onConfirmPurchase }) => {
+  
+  // Log the premium value on initial render to verify it’s correctly passed
+  useEffect(() => {
+    console.log("PremiumCalculator component mounted with premium:", premium);
+  }, [premium]);
+
   const handlePurchaseConfirmation = () => {
     if (onConfirmPurchase) {
+      console.log("Confirming purchase with premium:", premium);
       onConfirmPurchase();
     } else {
       console.warn("Purchase function is not provided.");

@@ -1,11 +1,11 @@
-// backend/models/Policy.js
 const mongoose = require('mongoose');
+const { Schema, Types } = mongoose;
 
-const policySchema = new mongoose.Schema({
+const policySchema = new Schema({
     policyName: { type: String, required: true },
     description: { type: String, required: true },
     coverageAmount: { type: Number, required: true },
-    
+
     // Only applicable if `premiumType` is "Fixed"; otherwise, it should be null
     premiumAmount: { 
         type: Number, 
@@ -44,14 +44,16 @@ const policySchema = new mongoose.Schema({
         balanceDue: Number
     },
 
+    // Reference to the user who purchased this policy
     userId: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: Types.ObjectId,
         ref: 'User',
         required: true
     },
 
+    // Reference to the related insurance plan
     insurancePlanId: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: Types.ObjectId,
         ref: 'InsurancePlan',
         required: true
     },
@@ -64,4 +66,12 @@ const policySchema = new mongoose.Schema({
     }
 });
 
-module.exports = mongoose.model('Policy', policySchema);
+// Helper function to query by ObjectId type in other parts of the code
+policySchema.statics.findByIdAsObjectId = function (policyId) {
+    return this.findById(Types.ObjectId(policyId));
+};
+
+// Check if the Policy model already exists before defining it again
+const Policy = mongoose.models.Policy || mongoose.model('Policy', policySchema);
+
+module.exports = Policy;

@@ -1,4 +1,3 @@
-// src/services/premiumService.js
 import axios from 'axios';
 
 const api = axios.create({
@@ -24,9 +23,15 @@ api.interceptors.request.use(
  */
 export const fetchInsuranceMetadata = async (insuranceType) => {
   try {
+    console.log(`Fetching metadata for insurance type: ${insuranceType}`);
     const response = await api.get(`/insurance-metadata/${insuranceType}`);
-    console.log('Fetched insurance metadata:', response.data.fields);
-    return response.data.fields;  // Ensure response contains .fields as expected
+    console.log('Metadata response:', response.data); // Log full response data for verification
+
+    // Directly set response data as the array if it is not wrapped in a `fields` property
+    const fields = Array.isArray(response.data) ? response.data : response.data.fields;
+    console.log('Extracted fields from metadata response:', fields);
+    
+    return fields;
   } catch (error) {
     console.error('Error fetching insurance metadata:', error);
     throw error;
@@ -41,9 +46,14 @@ export const fetchInsuranceMetadata = async (insuranceType) => {
  */
 export const calculatePremium = async (planId, riskData) => {
   try {
-    const response = await api.post('/premium/calculate', { policyId: planId, riskData });
-    console.log('Calculated premium:', response.data.premiumAmount); // Assuming response includes premiumAmount
-    return response.data.premiumAmount;
+    console.log(`Calculating premium for planId: ${planId} with risk data:`, { insuranceType: riskData.insuranceType, riskData });
+    const response = await api.post('/premium/calculate', {
+      policyId: planId,
+      insuranceType: riskData.insuranceType,  // Ensure this is correctly passed
+      riskData: riskData.riskData             // Adjust as necessary
+    });
+    console.log('Premium calculation response:', response.data);
+    return response.data.premium;
   } catch (error) {
     console.error('Error calculating premium:', error);
     throw error;
@@ -57,22 +67,27 @@ export const calculatePremium = async (planId, riskData) => {
  * @param {Function} navigate - Navigation function to redirect to the purchase page
  */
 export const initiatePurchase = (planId, premium, navigate) => {
+  console.log(`Initiating purchase for planId: ${planId} with premium: ${premium}`);
   const accessToken = localStorage.getItem('accessToken');
 
   if (!accessToken) {
     // If the user is not logged in, redirect to login page
     alert('Please log in or register to make a purchase.');
+    console.log(`Redirecting to login. Set redirectPath to /purchase/${planId}`);
     localStorage.setItem('redirectPath', `/purchase/${planId}`);
     navigate('/login');
     return;
   }
 
   // Redirect to the dedicated purchase page with the calculated premium
+  console.log(`Redirecting to purchase page for planId: ${planId} with premium: ${premium}`);
   navigate(`/purchase/${planId}?premium=${premium}`);
 };
 
-export default {
+const premiumService = {
   fetchInsuranceMetadata,
   calculatePremium,
   initiatePurchase,
 };
+
+export default premiumService;
