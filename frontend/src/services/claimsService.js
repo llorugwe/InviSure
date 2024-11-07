@@ -1,94 +1,60 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:5000',  // Base URL for the backend
+  baseURL: 'http://localhost:5000', // Base URL for the backend
 });
 
-// Add a request interceptor to include the accessToken in all requests if available
+// Interceptor to include accessToken in headers
 api.interceptors.request.use(
   (config) => {
-      const accessToken = localStorage.getItem('accessToken');
-      console.log('Access Token:', accessToken);  // Log token to verify
-      if (accessToken) {
-          config.headers.Authorization = `Bearer ${accessToken}`;
-      }
-      return config;
+    const accessToken = localStorage.getItem('accessToken');
+    if (accessToken) {
+      config.headers.Authorization = `Bearer ${accessToken}`;
+    }
+    return config;
   },
   (error) => Promise.reject(error)
 );
 
-// Refresh accessToken function
+// Refresh accessToken if expired
 const refreshAccessToken = async () => {
   const refreshToken = localStorage.getItem('refreshToken');
   if (!refreshToken) throw new Error('No refresh token available');
-  
+
   const response = await api.post('/auth/refresh-token', { token: refreshToken });
   const { accessToken: newAccessToken } = response.data;
   localStorage.setItem('accessToken', newAccessToken);
   return newAccessToken;
 };
 
-// Add a response interceptor to handle 401 errors and refresh the accessToken
+// 401 error handler for token refresh
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-
     if (error.response && error.response.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
-
       try {
         const newAccessToken = await refreshAccessToken();
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
         return api(originalRequest);
       } catch (refreshError) {
-        console.error('Token refresh failed:', refreshError);
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
         window.location.href = '/login';
         return Promise.reject(refreshError);
       }
     }
-
     return Promise.reject(error);
   }
 );
 
-// Helper function to check if the user is an admin
-const isAdmin = () => {
-  const role = localStorage.getItem('role');
-  return role === 'admin';
-};
+// Helper to check if user is an admin
+const isAdmin = () => localStorage.getItem('role') === 'admin';
 
-// Login function
-export const login = async (email, password) => {
-  try {
-      const response = await api.post('/auth/login', { email, password });
-      localStorage.setItem('accessToken', response.data.accessToken);
-      localStorage.setItem('refreshToken', response.data.refreshToken);
-      localStorage.setItem('role', response.data.role);  // Save user role for reference
-      return response.data;
-  } catch (error) {
-      console.error('Error during login:', error);
-      throw error;
-  }
-};
+// **Policyholder Functions**
 
-// Register function
-export const register = async (userData) => {
-  try {
-    const response = await api.post('/auth/register', userData);
-    localStorage.setItem('accessToken', response.data.accessToken);
-    localStorage.setItem('refreshToken', response.data.refreshToken);
-    return response.data;
-  } catch (error) {
-    console.error('Error during registration:', error);
-    throw error;
-  }
-};
-
-// Submit a new claim (Accessible to all users)
-// Submit a new claim (Accessible to all users)
+// Submit a new claim
 export const submitClaim = async (claimData) => {
   try {
     const response = await api.post('/claims/submit', claimData);
@@ -99,7 +65,7 @@ export const submitClaim = async (claimData) => {
   }
 };
 
-// Retrieve all claims for the policyholder (Accessible to all users)
+// Retrieve all claims for the policyholder
 export const getClaims = async () => {
   try {
     const response = await api.get('/claims');
@@ -110,36 +76,42 @@ export const getClaims = async () => {
   }
 };
 
-// Retrieve policy details for policyholders
-export const getPolicies = async () => {
+// Retrieve policy details available to policyholders
+export const getAvailablePolicies = async () => {
   try {
     const response = await api.get('/api/policies');
     return response.data;
   } catch (error) {
-    console.error('Error fetching policies:', error);
+    console.error('Error fetching available policies:', error);
     throw error;
   }
 };
 
-// Retrieve premium information for policyholders
-export const getPremiums = async () => {
+// **Admin Functions**
+
+// Retrieve all claims with user and policy details
+export const getAllClaims = async () => {
+  if (!isAdmin()) {
+    console.warn('Access denied: Only admins can retrieve all claims.');
+    return Promise.reject('Access Denied');
+  }
   try {
-    const response = await api.get('/api/premiums');
+    const response = await api.get('/admin/all-claims');
     return response.data;
   } catch (error) {
-    console.error('Error fetching premium information:', error);
+    console.error('Error fetching all claims:', error);
     throw error;
   }
 };
 
-// Update the status of a claim (Admin functionality only)
+// Update the status of a claim
 export const updateClaimStatus = async (claimId, newStatus) => {
   if (!isAdmin()) {
     console.warn('Access denied: Only admins can update claim status.');
     return Promise.reject('Access Denied');
   }
   try {
-    const response = await api.put(`/claims/${claimId}`, { status: newStatus });
+    const response = await api.put(`/admin/update-claim-status/${claimId}`, { status: newStatus });
     return response.data;
   } catch (error) {
     console.error('Error updating claim status:', error);
@@ -147,7 +119,9 @@ export const updateClaimStatus = async (claimId, newStatus) => {
   }
 };
 
-// Admin Dashboard Metrics - Fetch total policies (Admin functionality only)
+// **Admin Dashboard Metrics**
+
+// Fetch total policies
 export const getTotalPolicies = async () => {
   if (!isAdmin()) {
     console.warn('Access denied: Only admins can access total policies.');
@@ -162,7 +136,7 @@ export const getTotalPolicies = async () => {
   }
 };
 
-// Admin Dashboard Metrics - Fetch pending claims (Admin functionality only)
+// Fetch pending claims
 export const getPendingClaims = async () => {
   if (!isAdmin()) {
     console.warn('Access denied: Only admins can access pending claims.');
@@ -177,7 +151,7 @@ export const getPendingClaims = async () => {
   }
 };
 
-// Admin Dashboard Metrics - Fetch total claims (Admin functionality only)
+// Fetch total claims
 export const getTotalClaims = async () => {
   if (!isAdmin()) {
     console.warn('Access denied: Only admins can access total claims.');
@@ -192,7 +166,33 @@ export const getTotalClaims = async () => {
   }
 };
 
-// Request Password Reset function
+// **Authentication Functions**
+
+export const login = async (email, password) => {
+  try {
+    const response = await api.post('/auth/login', { email, password });
+    localStorage.setItem('accessToken', response.data.accessToken);
+    localStorage.setItem('refreshToken', response.data.refreshToken);
+    localStorage.setItem('role', response.data.role);
+    return response.data;
+  } catch (error) {
+    console.error('Error during login:', error);
+    throw error;
+  }
+};
+
+export const register = async (userData) => {
+  try {
+    const response = await api.post('/auth/register', userData);
+    localStorage.setItem('accessToken', response.data.accessToken);
+    localStorage.setItem('refreshToken', response.data.refreshToken);
+    return response.data;
+  } catch (error) {
+    console.error('Error during registration:', error);
+    throw error;
+  }
+};
+
 export const requestPasswordReset = async (email) => {
   try {
     const response = await api.post('/auth/request-password-reset', { email });
@@ -203,7 +203,6 @@ export const requestPasswordReset = async (email) => {
   }
 };
 
-// Reset Password function
 export const resetPassword = async (token, newPassword) => {
   try {
     const response = await api.post('/auth/reset-password', { token, newPassword });

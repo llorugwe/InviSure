@@ -37,31 +37,26 @@ const getTotalClaims = async (req, res) => {
     }
 };
 
-// Admin registration function
+// Admin function to register a new admin
 const registerAdmin = async (req, res) => {
     const { name, email, password } = req.body;
 
     try {
-        // Check if the user already exists
         const existingUser = await User.findOne({ email });
         if (existingUser) {
             return res.status(400).json({ message: 'User already exists' });
         }
 
-        // Hash the password
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Create the new admin user
         const newAdmin = new User({
             name,
             email,
             password: hashedPassword,
-            role: 'admin'  // Set the role as 'admin' explicitly
+            role: 'admin'
         });
 
-        // Save the new admin to the database
         await newAdmin.save();
-
         res.status(201).json({ message: 'Admin registered successfully' });
     } catch (error) {
         console.error('Error during admin registration:', error);
@@ -71,14 +66,12 @@ const registerAdmin = async (req, res) => {
 
 // Admin function to create a new insurance plan
 const createInsurancePlan = async (req, res) => {
-    const { policyName, description, premiumType, premiumAmount, coverageAmount, riskFactors, isAvailable, insuranceType } = req.body; // include premiumType
+    const { policyName, description, premiumType, premiumAmount, coverageAmount, riskFactors, isAvailable, insuranceType } = req.body;
     
-    // Log the received data
     console.log('Received data in createInsurancePlan:', req.body);
 
-    // Basic validation
-    if (!policyName || !description || !premiumType || !coverageAmount || !insuranceType) { // check for premiumType as well
-        console.error('Missing required fields:', { policyName, description, premiumType, premiumAmount, coverageAmount, insuranceType });
+    if (!policyName || !description || !premiumType || !coverageAmount || !insuranceType) {
+        console.error('Missing required fields:', { policyName, description, premiumType, coverageAmount, insuranceType });
         return res.status(400).json({ message: 'All required fields must be provided' });
     }
 
@@ -86,8 +79,8 @@ const createInsurancePlan = async (req, res) => {
         const newPlan = new InsurancePlan({
             policyName,
             description,
-            premiumType,  // include premiumType here
-            premiumAmount: premiumType === 'Fixed' ? premiumAmount : null, // Only set premiumAmount for Fixed
+            premiumType,
+            premiumAmount: premiumType === 'Fixed' ? premiumAmount : null,
             coverageAmount,
             riskFactors,
             isAvailable: isAvailable ?? true,
@@ -133,7 +126,7 @@ const deleteInsurancePlan = async (req, res) => {
 // Admin function to update user status (e.g., approve or suspend user)
 const updateUserStatus = async (req, res) => {
     const { userId } = req.params;
-    const { status } = req.body; // status can be 'approved' or 'suspended'
+    const { status } = req.body;
 
     try {
         const user = await User.findByIdAndUpdate(userId, { status }, { new: true });
@@ -159,36 +152,44 @@ const upgradeUserToAdmin = async (req, res) => {
     }
 };
 
-// Admin function to approve or reject a claim
+// Admin function to update claim status with extended options
 const updateClaimStatus = async (req, res) => {
     const { claimId } = req.params;
-    const { status } = req.body; // status can be 'approved' or 'rejected'
+    const { status } = req.body;
+
+    const validStatuses = ['submitted', 'in review', 'approved', 'rejected'];
+    if (!validStatuses.includes(status)) {
+        return res.status(400).json({ message: 'Invalid status value' });
+    }
 
     try {
-        const claim = await Claim.findByIdAndUpdate(claimId, { status }, { new: true });
-        if (!claim) return res.status(404).json({ message: 'Claim not found' });
-        res.status(200).json({ message: `Claim status updated to ${status}`, claim });
+        const updatedClaim = await Claim.findByIdAndUpdate(claimId, { status }, { new: true });
+        if (!updatedClaim) return res.status(404).json({ message: 'Claim not found' });
+        res.status(200).json({ message: 'Claim status updated successfully', claim: updatedClaim });
     } catch (error) {
         console.error('Error updating claim status:', error);
         res.status(500).json({ message: 'Server error' });
     }
 };
 
-// Admin function to retrieve all claims in the system
+// Admin function to retrieve all claims with user and policy details
 const getAllClaims = async (req, res) => {
     try {
-        const claims = await Claim.find();
+        const claims = await Claim.find()
+            .populate({ path: 'userId', select: 'name email' }) // Populate userId
+            .populate({ path: 'policyId', select: 'policyName basePremium' }) // Populate policyId
+            .sort({ submittedAt: -1 });
+        
         res.status(200).json(claims);
-    } catch (error) {
-        console.error('Error retrieving all claims:', error);
-        res.status(500).json({ message: 'Server error' });
+    } catch (err) {
+        console.error('Error retrieving all claims:', err);
+        res.status(500).json({ message: 'Server error', error: err.message });
     }
 };
 
-// Admin function to retrieve all available (active) insurance policies
+// Admin function to retrieve all available insurance policies
 const getAvailablePolicies = async (req, res) => {
     try {
-        // Filter for only active, available policies
         const policies = await InsurancePlan.find({ status: 'active', isAvailable: true }).select(
             'policyName description premiumAmount coverageAmount'
         );

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { getClaims, updateClaimStatus } from '../../services/claimsService';
+import { getAllClaims, updateClaimStatus } from '../../services/claimsService';
+import './ManageClaims.css'; // Import the CSS file for custom styling
 
 const ManageClaims = () => {
   const [claims, setClaims] = useState([]);
@@ -8,7 +9,7 @@ const ManageClaims = () => {
   useEffect(() => {
     const fetchClaims = async () => {
       try {
-        const response = await getClaims();
+        const response = await getAllClaims(); // Fetch all claims with admin privileges
         setClaims(response);
       } catch (err) {
         setError('Failed to load claims. Please try again.');
@@ -30,14 +31,15 @@ const ManageClaims = () => {
   };
 
   return (
-    <div>
+    <div className="manage-claims-container">
       <h2>Manage Claims</h2>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {error && <p className="error-text">{error}</p>}
       {claims.length > 0 ? (
-        <table>
+        <table className="claims-table">
           <thead>
             <tr>
-              <th>Policy Number</th>
+              <th>User</th>
+              <th>Policy</th>
               <th>Description</th>
               <th>Amount</th>
               <th>Status</th>
@@ -47,18 +49,23 @@ const ManageClaims = () => {
           <tbody>
             {claims.map((claim) => (
               <tr key={claim._id}>
-                <td>{claim.policyNumber}</td>
+                <td>{claim.user?.name || 'N/A'}</td>
+                <td>{claim.policy?.name || 'N/A'}</td>
                 <td>{claim.description}</td>
-                <td>{claim.amount}</td>
+                <td>{claim.amount ? `R ${claim.amount}` : 'N/A'}</td>
                 <td>{claim.status}</td>
-                <td>
+                <td className="action-buttons">
                   <button
-                    onClick={() => handleStatusChange(claim._id, 'Approved')}
+                    onClick={() => handleStatusChange(claim._id, 'approved')}
+                    disabled={claim.status === 'approved'}
+                    className="approve-button"
                   >
                     Approve
                   </button>
                   <button
-                    onClick={() => handleStatusChange(claim._id, 'Rejected')}
+                    onClick={() => handleStatusChange(claim._id, 'rejected')}
+                    disabled={claim.status === 'rejected'}
+                    className="reject-button"
                   >
                     Reject
                   </button>

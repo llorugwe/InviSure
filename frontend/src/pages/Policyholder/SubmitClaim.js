@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { submitClaim, getPolicies } from '../../services/claimsService';
+import { submitClaim, getAvailablePolicies } from '../../services/claimsService';
 
 const SubmitClaim = () => {
   const [policies, setPolicies] = useState([]);
@@ -16,7 +16,7 @@ const SubmitClaim = () => {
   useEffect(() => {
     const fetchPolicies = async () => {
       try {
-        const policiesData = await getPolicies();
+        const policiesData = await getAvailablePolicies();
         setPolicies(policiesData);
       } catch (error) {
         setError('Failed to load policies. Please try again later.');

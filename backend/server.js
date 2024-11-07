@@ -13,8 +13,8 @@ const insurancePlanRoutes = require('./routes/insurancePlans');
 const userRoutes = require('./routes/user');
 const premiumRoutes = require('./routes/premium');
 const paymentsRoutes = require('./routes/payments'); // Payments route
-const claimsRoutes = require('./routes/claims');
-const adminRoutes = require('./routes/adminRoutes');
+const claimsRoutes = require('./routes/claims'); // Policyholder claims route
+const adminRoutes = require('./routes/adminRoutes'); // Admin-only routes
 const policyRoutes = require('./routes/policies'); // Policy details route
 const insuranceMetadataRoutes = require('./routes/insuranceMetadata'); // Metadata route
 const premiumCalculatorRoutes = require('./routes/premiumCalculator'); // Premium calculation route
@@ -50,14 +50,14 @@ mongoose.connect(process.env.MONGO_URL, {
 // Define routes
 app.use('/auth', authRoutes);
 app.use('/user', userRoutes);
-app.use('/insurance-plans', insurancePlanRoutes);
-app.use('/premium', premiumRoutes);              // Premium route
-app.use('/payments', paymentsRoutes);            // Payments route
-app.use('/claims', claimsRoutes);
-app.use('/admin', adminRoutes);
-app.use('/api/policies', policyRoutes);          // Policies route
+app.use('/insurance-plans', insurancePlanRoutes);       // Routes related to insurance plans
+app.use('/premium', premiumRoutes);                     // Premium-related routes
+app.use('/payments', paymentsRoutes);                   // Payments route
+app.use('/claims', claimsRoutes);                       // Policyholder claims route
+app.use('/admin', adminRoutes);                         // Admin-only route for claims and policies
+app.use('/api/policies', policyRoutes);                 // Policies route
 app.use('/api/insurance-metadata', insuranceMetadataRoutes); // Insurance metadata route
-app.use('/api/premium', premiumCalculatorRoutes); // Premium calculator route
+app.use('/api/premium', premiumCalculatorRoutes);       // Premium calculator route
 
 // Handle undefined routes with a 404 response
 app.use((req, res) => {
