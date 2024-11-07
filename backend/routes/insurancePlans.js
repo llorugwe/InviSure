@@ -1,3 +1,4 @@
+// src/routes/insurancePlans.js
 const express = require('express');
 const InsurancePlan = require('../models/InsurancePlan');
 const Policy = require('../models/Policy');
@@ -15,17 +16,16 @@ router.post('/', authMiddleware('admin'), async (req, res) => {
 
         // Validate required fields
         if (!policyName || !description || !coverageAmount || !insuranceType || !premiumType) {
+            console.error('Missing required fields in policy creation');
             return res.status(400).json({ message: 'Missing required fields' });
         }
 
         // Validate premiumType logic
         if (premiumType === 'Fixed') {
-            // If premium type is fixed, ensure a premium amount is provided
             if (premiumAmount === null || premiumAmount === undefined) {
                 return res.status(400).json({ message: 'Fixed premium type requires a premium amount' });
             }
         } else if (premiumType === 'Dynamic') {
-            // If premium type is dynamic, set premiumAmount to null
             req.body.premiumAmount = null;
         } else {
             return res.status(400).json({ message: 'Invalid premium type' });
@@ -36,13 +36,13 @@ router.post('/', authMiddleware('admin'), async (req, res) => {
             policyName,
             description,
             premiumType,
-            premiumAmount: req.body.premiumAmount, // For dynamic, this will be null
+            premiumAmount: req.body.premiumAmount,
             coverageAmount,
             insuranceType,
             userId,
-            insurancePlanId
+            insurancePlanId,
         });
-        
+
         await newPolicy.save();
         console.log('New policy created:', newPolicy);
         res.status(201).json({ message: 'Policy created successfully', policy: newPolicy });
@@ -82,30 +82,59 @@ router.post('/:id/purchase', authMiddleware(['policyholder']), async (req, res) 
     try {
         const userId = req.user.userId;
         const plan = await InsurancePlan.findById(req.params.id);
+
         if (!plan || !plan.isAvailable) {
+            console.error('Plan not available for purchase:', req.params.id);
             return res.status(404).json({ message: 'Plan not available for purchase' });
         }
 
+        // Initialize premiumAmount with the fixed premium if applicable
+        let premiumAmount = plan.premiumAmount;
+
+        // Debug: Log details if this is a dynamic plan
+        console.log('Dynamic purchase request received for plan:', {
+            planId: plan._id,
+            premiumType: plan.premiumType,
+            receivedPremiumAmount: req.body.premiumAmount,
+        });
+
+        // Handle dynamic premium plans
+        if (plan.premiumType === 'Dynamic') {
+            premiumAmount = req.body.premiumAmount;
+
+            if (!premiumAmount) {
+                console.error('Missing calculated premium amount for dynamic plan');
+                return res.status(400).json({ message: 'Calculated premium amount is required for dynamic premium plans' });
+            }
+        }
+
+        // Debug: Confirm final premiumAmount before policy creation
+        console.log('Final premiumAmount for policy creation:', premiumAmount);
+
+        // Create a new policy document with the required fields
         const newPolicy = new Policy({
             userId,
             insurancePlanId: plan._id,
             policyName: plan.policyName,
             description: plan.description,
             coverageAmount: plan.coverageAmount,
-            insuranceType: plan.insuranceType, // Include insuranceType here
+            insuranceType: plan.insuranceType,
+            premiumType: plan.premiumType,
+            premiumAmount: premiumAmount,  // Store premiumAmount
             startDate: new Date(),
-            endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)), // Default to 1-year duration
+            endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
             status: 'active',
             premium: {
-                amount: plan.premiumAmount,
-                nextDueDate: new Date(new Date().setMonth(new Date().getMonth() + 1)), // First due date 1 month later
+                amount: premiumAmount,
+                nextDueDate: new Date(new Date().setMonth(new Date().getMonth() + 1)),
                 paymentStatus: 'pending',
                 totalPaid: 0,
-                balanceDue: plan.premiumAmount,
+                balanceDue: premiumAmount,
             }
         });
 
         await newPolicy.save();
+        console.log('Policy created successfully with premium:', newPolicy);
         res.status(200).json({ message: 'Insurance plan purchased successfully', policy: newPolicy });
     } catch (err) {
         console.error('Error purchasing insurance plan:', err);

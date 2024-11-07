@@ -16,21 +16,31 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+// Refresh token or redirect if an authentication error occurs
+api.interceptors.response.use(
+  response => response,
+  error => {
+    if (error.response && error.response.status === 401) {
+      alert("Session expired. Please log in again.");
+      localStorage.removeItem("accessToken");
+      window.location.href = "/login";
+    }
+    return Promise.reject(error);
+  }
+);
+
 // Function to fetch all policies, optionally filtered by insurance type
 export const fetchPolicies = async (insuranceType = '') => {
   try {
     const response = await api.get('/api/policies', {
       params: { type: insuranceType },
     });
-    
-    // Map through policies to add premium display logic
     const policiesWithDisplayPremium = response.data.map((policy) => ({
       ...policy,
       displayPremium: policy.premiumType === 'Fixed'
         ? `R ${policy.premiumAmount?.toLocaleString()}`
         : 'Calculated based on risk assessment',
     }));
-    
     console.log("Fetched policies with premium display:", policiesWithDisplayPremium);
     return policiesWithDisplayPremium;
   } catch (error) {
@@ -81,14 +91,29 @@ export const getPremiums = async () => {
   }
 };
 
-// Function to purchase an insurance plan
-export const purchaseInsurancePlan = async (planId) => {
+// Function to purchase an insurance plan 
+export const purchaseInsurancePlan = async (planId, purchaseData = {}) => {
   try {
-    const response = await api.post(`/insurance-plans/${planId}/purchase`);
+    const accessToken = localStorage.getItem('accessToken');
+    console.log("Starting purchase with planId:", planId);
+    console.log("Access Token:", accessToken);
+    console.log("Purchase data being sent:", purchaseData);
+
+    const response = await api.post(
+      `/insurance-plans/${planId}/purchase`, 
+      purchaseData,  // Include premiumAmount in body if provided
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`
+        }
+      }
+    );
+    
     console.log("Purchase successful:", response.data);
     return response.data;
   } catch (error) {
     console.error('Error purchasing insurance plan:', error);
+    console.error("Error response details:", error.response?.data);
     throw error;
   }
 };

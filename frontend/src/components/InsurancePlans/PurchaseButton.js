@@ -1,12 +1,11 @@
 // src/components/InsurancePlans/PurchaseButton.js
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { purchaseInsurancePlan } from '../../services/insurancePlansService';
 
 const PurchaseButton = ({ planId, premium }) => {
   const navigate = useNavigate();
 
-  const handlePurchase = async () => {
+  const handlePurchase = () => {
     const accessToken = localStorage.getItem('accessToken');
 
     if (!accessToken) {
@@ -17,13 +16,8 @@ const PurchaseButton = ({ planId, premium }) => {
       return;
     }
 
-    try {
-      // Redirect authenticated user to the dedicated purchase page
-      navigate(`/purchase/${planId}?premium=${premium}`);
-    } catch (error) {
-      console.error('Error initiating purchase:', error);
-      alert('Failed to initiate purchase. Please try again.');
-    }
+    // Redirect authenticated user to the dedicated purchase page with premium as state
+    navigate(`/purchase/${planId}`, { state: { premium } });
   };
 
   return (

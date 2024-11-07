@@ -1,4 +1,4 @@
-// src/components/InsurancePlans/PlanDetails.js 
+// src/components/InsurancePlans/PlanDetails.js
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getInsurancePlanDetails } from '../../services/insurancePlansService';
@@ -16,17 +16,13 @@ const PlanDetails = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    console.log("Fetching plan details for planId:", planId);
-
     const fetchPlanDetails = async () => {
       try {
         const planData = await getInsurancePlanDetails(planId);
-        console.log("Fetched plan details:", planData);
         setPlan(planData);
 
         // Only fetch metadata fields if the premium type is dynamic
         if (planData.premiumType === 'Dynamic') {
-          console.log("Plan is dynamic. Fetching insurance metadata for type:", planData.insuranceType);
           fetchInsuranceMetadataFields(planData.insuranceType);
         }
       } catch (err) {
@@ -37,24 +33,15 @@ const PlanDetails = () => {
 
     const fetchInsuranceMetadataFields = async (insuranceType) => {
       try {
-        console.log("Fetching metadata for insurance type:", insuranceType);
         const fields = await fetchInsuranceMetadata(insuranceType);
-        console.log("Metadata response:", fields);
-
-        if (fields && fields.length > 0) {
-          setFormFields(fields);
-          console.log("Form fields set for metadata:", fields);
-          // Initialize riskData with default empty values for each field
-          setRiskData(fields.reduce((data, field) => {
-            data[field.name] = field.type === 'number' ? 0 : ''; // Set numeric fields to 0 as default
-            return data;
-          }, {}));
-        } else {
-          setError("No form fields available for this insurance type.");
-        }
+        setFormFields(fields);
+        setRiskData(fields.reduce((data, field) => {
+          data[field.name] = field.type === 'number' ? 0 : ''; // Initialize numeric fields to 0
+          return data;
+        }, {}));
       } catch (err) {
-        console.error("Error fetching metadata:", err);
         setError("Failed to load insurance metadata.");
+        console.error("Error fetching metadata:", err);
       }
     };
 
@@ -63,8 +50,7 @@ const PlanDetails = () => {
 
   const handleChange = (e) => {
     const { name, value, type } = e.target;
-    const formattedValue = type === "number" ? parseFloat(value) || 0 : value; // Handle numeric and text input types
-    setRiskData((prevData) => ({ ...prevData, [name]: formattedValue }));
+    setRiskData((prevData) => ({ ...prevData, [name]: type === "number" ? parseFloat(value) || 0 : value }));
   };
 
   const handleCalculatePremium = async (e) => {
@@ -76,7 +62,6 @@ const PlanDetails = () => {
     try {
       const premium = await calculatePremium(planId, { insuranceType: plan.insuranceType, riskData });
       setCalculatedPremium(premium);
-      console.log("Calculated premium:", premium);
     } catch (error) {
       setError("Failed to calculate premium.");
       console.error("Error calculating premium:", error);
@@ -93,17 +78,18 @@ const PlanDetails = () => {
           <p><strong>Coverage:</strong> R {plan.coverageAmount.toLocaleString()}</p>
           <p><strong>Insurance Type:</strong> {plan.insuranceType}</p>
 
-          {/* Show either the base premium or the dynamic premium calculation */}
+          {/* Show premium and purchase options based on premium type */}
           {plan.premiumType === 'Fixed' ? (
-            <p><strong>Premium:</strong> R {plan.premiumAmount.toLocaleString()}</p>
+            <>
+              <p><strong>Premium:</strong> R {plan.premiumAmount.toLocaleString()}</p>
+              {/* Fixed premium: Show purchase button directly */}
+              <PurchaseButton planId={planId} premium={plan.premiumAmount} />
+            </>
           ) : (
             <>
               <h3>Risk Assessment Form</h3>
-              
-              {/* Display a message if no form fields are available */}
               {formFields.length > 0 ? (
                 <form onSubmit={handleCalculatePremium}>
-                  {/* Dynamic form fields based on insurance type */}
                   {formFields.map((field) => (
                     <div key={field.name} className="mb-3">
                       <label>{field.label || field.name}</label>
@@ -128,7 +114,7 @@ const PlanDetails = () => {
                           onChange={handleChange}
                           required={field.required}
                           className="form-control"
-                          min={0} // Optional: restricts input to positive numbers
+                          min={0}
                         />
                       )}
                     </div>
@@ -139,11 +125,11 @@ const PlanDetails = () => {
                 <p>No dynamic form fields are available for this insurance type.</p>
               )}
 
-              {/* Display the calculated premium and purchase button */}
               {calculatedPremium && (
                 <div className="mt-4">
                   <PremiumCalculator premium={calculatedPremium} />
-                  <PurchaseButton planId={planId} />
+                  {/* Show purchase button after dynamic premium calculation */}
+                  <PurchaseButton planId={planId} premium={calculatedPremium} />
                 </div>
               )}
             </>

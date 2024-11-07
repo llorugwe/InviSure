@@ -1,14 +1,14 @@
-// src/pages/Policyholder/PurchasePage.js
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { getInsurancePlanDetails } from '../../services/insurancePlansService'; // Updated path
-import { purchaseInsurancePlan } from '../../services/policiesService'; // Updated path
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { getInsurancePlanDetails } from '../../services/insurancePlansService';
+import { purchaseInsurancePlan } from '../../services/policiesService';
 
 const PurchasePage = () => {
   const { planId } = useParams();
+  const { state } = useLocation(); // Access location state to get the premium
   const [plan, setPlan] = useState(null);
   const [error, setError] = useState(null);
-  const [isLoading, setIsLoading] = useState(true); // Loading state
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -18,9 +18,8 @@ const PurchasePage = () => {
         setPlan(data);
       } catch (error) {
         setError('Failed to load plan details.');
-        console.error('Error fetching plan details:', error);
       } finally {
-        setIsLoading(false); // Stop loading after fetch completes
+        setIsLoading(false);
       }
     };
     fetchPlanDetails();
@@ -28,17 +27,20 @@ const PurchasePage = () => {
 
   const handlePurchase = async () => {
     try {
-      await purchaseInsurancePlan(planId);
+      // Include premiumAmount if it's a dynamic premium plan
+      const purchaseData = {
+        premiumAmount: state?.premium // Pass calculated premium for dynamic plans
+      };
+      await purchaseInsurancePlan(planId, purchaseData);
       alert('Purchase successful! You can view your policy in your dashboard.');
-      navigate('/dashboard'); // Redirect to dashboard after purchase
+      navigate('/dashboard');
     } catch (error) {
       setError('Failed to complete the purchase. Please try again.');
-      console.error('Error purchasing plan:', error);
     }
   };
 
-  if (isLoading) return <p>Loading plan details...</p>; // Show loading message
-  if (error) return <p className="alert alert-danger">{error}</p>; // Show error if any
+  if (isLoading) return <p>Loading plan details...</p>;
+  if (error) return <p className="alert alert-danger">{error}</p>;
 
   return (
     <div className="container mt-5">
@@ -47,8 +49,8 @@ const PurchasePage = () => {
         <div className="card p-4 shadow-sm">
           <h3>{plan.policyName}</h3>
           <p><strong>Description:</strong> {plan.description}</p>
-          <p><strong>Coverage Amount:</strong> R {plan.coverageAmount.toLocaleString()}</p>
-          <p><strong>Premium:</strong> R {plan.premiumAmount.toLocaleString()}</p>
+          <p><strong>Coverage Amount:</strong> R {plan.coverageAmount?.toLocaleString() || 'N/A'}</p>
+          <p><strong>Premium:</strong> R {state?.premium?.toLocaleString() || 'N/A'}</p>
           <button onClick={handlePurchase} className="btn btn-success mt-3">
             Confirm Purchase
           </button>
