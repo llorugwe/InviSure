@@ -176,10 +176,10 @@ const updateClaimStatus = async (req, res) => {
 const getAllClaims = async (req, res) => {
     try {
         const claims = await Claim.find()
-            .populate({ path: 'userId', select: 'name email' }) // Populate userId
-            .populate({ path: 'policyId', select: 'policyName basePremium' }) // Populate policyId
+            .populate({ path: 'userId', select: 'name email', model: 'User', as: 'user' }) // Populate `userId` as `user`
+            .populate({ path: 'policyId', select: 'policyName coverageAmount', model: 'Policy', as: 'policy' }) // Populate `policyId` as `policy`
             .sort({ submittedAt: -1 });
-        
+
         res.status(200).json(claims);
     } catch (err) {
         console.error('Error retrieving all claims:', err);

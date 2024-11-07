@@ -1,63 +1,89 @@
+/* ManageClaims.css */
+
 .manage-claims-container {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 20px;
-  }
-  
-  .error-text {
-    color: red;
-    font-weight: bold;
-    margin-bottom: 20px;
-  }
-  
-  .claims-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-  }
-  
-  .claims-table th,
-  .claims-table td {
-    padding: 12px;
-    border: 1px solid #ddd;
-    text-align: left;
-  }
-  
-  .claims-table th {
-    background-color: #f2f2f2;
-    font-weight: bold;
-  }
-  
-  .claims-table td {
-    background-color: #ffffff;
-  }
-  
-  .action-buttons {
-    display: flex;
-    gap: 10px;
-  }
-  
-  .approve-button {
-    background-color: #4CAF50;
-    color: white;
-    padding: 6px 12px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-  
-  .reject-button {
-    background-color: #f44336;
-    color: white;
-    padding: 6px 12px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-  
-  .approve-button:disabled,
-  .reject-button:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
-  }
-  
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  font-family: Arial, sans-serif;
+}
+
+h2 {
+  margin-bottom: 20px;
+  font-size: 24px;
+  color: #333;
+}
+
+.error-text {
+  color: red;
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+
+.claims-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.claims-table th, .claims-table td {
+  padding: 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.claims-table th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+}
+
+.claims-table td {
+  background-color: #ffffff;
+}
+
+.claims-table tr:hover {
+  background-color: #f9f9f9;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.approve-button, .reject-button {
+  padding: 8px 12px;
+  font-size: 14px;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
+.approve-button {
+  background-color: #4CAF50;
+}
+
+.approve-button:hover {
+  background-color: #45a049;
+}
+
+.reject-button {
+  background-color: #f44336;
+}
+
+.reject-button:hover {
+  background-color: #d73833;
+}
+
+.approve-button:disabled, .reject-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.no-claims-message {
+  font-size: 18px;
+  color: #666;
+  margin-top: 20px;
+  text-align: center;
+}

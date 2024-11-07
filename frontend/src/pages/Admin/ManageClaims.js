@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getAllClaims, updateClaimStatus } from '../../services/claimsService';
-import './ManageClaims.css'; // Import the CSS file for custom styling
+import './ManageClaims.css';
 
 const ManageClaims = () => {
   const [claims, setClaims] = useState([]);
@@ -9,7 +9,7 @@ const ManageClaims = () => {
   useEffect(() => {
     const fetchClaims = async () => {
       try {
-        const response = await getAllClaims(); // Fetch all claims with admin privileges
+        const response = await getAllClaims();
         setClaims(response);
       } catch (err) {
         setError('Failed to load claims. Please try again.');
@@ -38,10 +38,10 @@ const ManageClaims = () => {
         <table className="claims-table">
           <thead>
             <tr>
-              <th>User</th>
+              <th>Policyholder Name</th>
               <th>Policy</th>
               <th>Description</th>
-              <th>Amount</th>
+              <th>Claim Amount</th>
               <th>Status</th>
               <th>Action</th>
             </tr>
@@ -49,10 +49,10 @@ const ManageClaims = () => {
           <tbody>
             {claims.map((claim) => (
               <tr key={claim._id}>
-                <td>{claim.user?.name || 'N/A'}</td>
-                <td>{claim.policy?.name || 'N/A'}</td>
+                <td>{claim.user?.name || 'No Name Available'}</td>
+                <td>{claim.policy?.policyName || 'No Policy Name'}</td>
                 <td>{claim.description}</td>
-                <td>{claim.amount ? `R ${claim.amount}` : 'N/A'}</td>
+                <td>{claim.policy?.coverageAmount ? `R ${claim.policy.coverageAmount.toLocaleString()}` : 'Amount Not Available'}</td>
                 <td>{claim.status}</td>
                 <td className="action-buttons">
                   <button
