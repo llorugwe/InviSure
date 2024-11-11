@@ -1,0 +1,49 @@
+/* src/components/Header.css */
+
+.navbar {
+  background-color: rgba(0, 79, 109, 0.8); /* Semi-transparent navy blue */
+  padding: 0.5rem 1rem; /* Reduced padding to decrease header height */
+  font-family: 'Merriweather', serif;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  height: 60px; /* Set a fixed height for the header */
+}
+
+.navbar.scrolled {
+  background-color: rgba(0, 79, 109, 0.95); /* Less transparent when scrolled */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.navbar-brand {
+  font-size: 1.3rem;
+  color: #e7f5f8;
+  font-weight: bold;
+}
+
+.navbar-brand:hover {
+  color: #e27d60;
+  text-decoration: none;
+}
+
+.nav-link {
+  color: #e7f5f8;
+  font-size: 1rem;
+  margin-left: 1rem;
+  transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+  color: #e27d60;
+}
+
+.navbar-toggler-icon {
+  background-color: #e7f5f8;
+}
+
+.nav-item .btn-link {
+  color: #e7f5f8;
+}
+
+.nav-item .btn-link:hover {
+  color: #e27d60;
+}

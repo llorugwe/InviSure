@@ -19,32 +19,67 @@
 
     <!-- Custom styling for consistent color and font themes across the site -->
     <style>
+      /* Reset default margin/padding */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      /* Body styling */
       body {
         font-family: 'Lato', sans-serif;
         background-color: #f5f7fa; /* Light background color for a subtle theme */
         color: #333;
-        margin: 0;
-        padding: 0;
       }
 
+      /* Heading styling */
       h1, h2, h3, h4 {
         font-family: 'Merriweather', serif;
         color: #333;
       }
 
+      /* Link styling */
       a {
         color: #004aad; /* Consistent link color */
         text-decoration: none;
       }
-
       a:hover {
         text-decoration: underline;
       }
 
+      /* Container for consistent page structure */
       .container {
         max-width: 1200px;
         margin: 0 auto;
         padding: 1rem;
+      }
+
+      /* Global margin below the fixed header */
+      .content-wrapper {
+        margin-top: 80px; /* Adjust based on your header height */
+      }
+
+      /* Navbar styling for fixed and translucent effect */
+      .navbar {
+        font-family: 'Merriweather', serif;
+        font-size: 1rem;
+        font-weight: 700;
+        color: #ffffff;
+        background-color: rgba(0, 74, 173, 0.9); /* Translucent navy background */
+        position: fixed;
+        top: 0;
+        width: 100%;
+        z-index: 1000;
+        padding: 1rem;
+        transition: background-color 0.3s ease;
+      }
+      .navbar a {
+        color: #f8f9fa;
+        text-decoration: none;
+      }
+      .navbar a:hover {
+        color: #e27d60; /* Coral color for hover effect */
       }
     </style>
   </head>

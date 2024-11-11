@@ -1,6 +1,7 @@
 // src/pages/Admin/ManagePolicies.js
 import React, { useEffect, useState } from 'react';
 import { getAllPoliciesAdmin, createPolicy, deletePolicy, updatePolicy } from '../../services/insurancePlansService';
+import './ManagePolicies.css'; // Import CSS for styling
 
 const ManagePolicies = () => {
   const [policies, setPolicies] = useState([]);
@@ -12,15 +13,14 @@ const ManagePolicies = () => {
   const [policyData, setPolicyData] = useState({
     policyName: '',
     description: '',
-    premiumType: 'Fixed', // New field for premium type
+    premiumType: 'Fixed',
     premiumAmount: 0,
     coverageAmount: 0,
     riskFactors: [],
     isAvailable: true,
-    insuranceType: '', // New field for insurance type
+    insuranceType: '',
   });
 
-  // Predefined list of insurance types
   const insuranceTypes = ['Health', 'Life', 'Car', 'Home', 'Travel'];
 
   useEffect(() => {
@@ -37,12 +37,10 @@ const ManagePolicies = () => {
 
   const handleCreateOrEditPolicy = async () => {
     const payload = { ...policyData };
-    
-    // Only include premiumAmount if the premiumType is Fixed
     if (policyData.premiumType === 'Dynamic') {
       delete payload.premiumAmount;
     }
-  
+
     try {
       if (isEditing) {
         await updatePolicy(editPolicyId, payload);
@@ -50,7 +48,6 @@ const ManagePolicies = () => {
         await createPolicy(payload);
       }
       setShowModal(false);
-      // Reset form after submission
       setPolicyData({
         policyName: '',
         description: '',
@@ -59,11 +56,11 @@ const ManagePolicies = () => {
         coverageAmount: 0,
         riskFactors: [],
         isAvailable: true,
-        insuranceType: ''
+        insuranceType: '',
       });
       setIsEditing(false);
       setEditPolicyId(null);
-  
+
       const updatedPolicies = await getAllPoliciesAdmin();
       setPolicies(updatedPolicies);
       setError(null);
@@ -112,79 +109,90 @@ const ManagePolicies = () => {
         <div className="modal-overlay">
           <div className="modal-content">
             <h2>{isEditing ? 'Edit Policy' : 'Create New Policy'}</h2>
-            <form>
-              <label>Policy Name:</label>
-              <input
-                type="text"
-                value={policyData.policyName}
-                onChange={(e) => setPolicyData({ ...policyData, policyName: e.target.value })}
-              />
-              <label>Description:</label>
-              <input
-                type="text"
-                value={policyData.description}
-                onChange={(e) => setPolicyData({ ...policyData, description: e.target.value })}
-              />
-              
-              <label>Premium Type:</label>
-              <select
-                value={policyData.premiumType}
-                onChange={(e) => setPolicyData({ ...policyData, premiumType: e.target.value })}
-              >
-                <option value="Fixed">Fixed</option>
-                <option value="Dynamic">Dynamic</option>
-              </select>
-              
-              {/* Show premium amount field only if Fixed premium is selected */}
+            <form className="policy-form">
+              <div className="form-group">
+                <label>Policy Name:</label>
+                <input
+                  type="text"
+                  value={policyData.policyName}
+                  onChange={(e) => setPolicyData({ ...policyData, policyName: e.target.value })}
+                />
+              </div>
+              <div className="form-group">
+                <label>Description:</label>
+                <input
+                  type="text"
+                  value={policyData.description}
+                  onChange={(e) => setPolicyData({ ...policyData, description: e.target.value })}
+                />
+              </div>
+              <div className="form-group">
+                <label>Premium Type:</label>
+                <select
+                  value={policyData.premiumType}
+                  onChange={(e) => setPolicyData({ ...policyData, premiumType: e.target.value })}
+                >
+                  <option value="Fixed">Fixed</option>
+                  <option value="Dynamic">Dynamic</option>
+                </select>
+              </div>
               {policyData.premiumType === 'Fixed' && (
-                <>
+                <div className="form-group">
                   <label>Premium Amount:</label>
                   <input
                     type="number"
                     value={policyData.premiumAmount}
                     onChange={(e) => setPolicyData({ ...policyData, premiumAmount: Number(e.target.value) })}
                   />
-                </>
+                </div>
               )}
-              
-              <label>Coverage Amount:</label>
-              <input
-                type="number"
-                value={policyData.coverageAmount}
-                onChange={(e) => setPolicyData({ ...policyData, coverageAmount: Number(e.target.value) })}
-              />
-              <label>Risk Factors (Optional):</label>
-              <input
-                type="text"
-                placeholder="Enter risk factors separated by commas"
-                value={policyData.riskFactors.join(', ')}
-                onChange={(e) => setPolicyData({ ...policyData, riskFactors: e.target.value.split(',').map(f => f.trim()) })}
-              />
-              <label>Availability:</label>
-              <select
-                value={policyData.isAvailable}
-                onChange={(e) => setPolicyData({ ...policyData, isAvailable: e.target.value === 'true' })}
-              >
-                <option value="true">Available</option>
-                <option value="false">Not Available</option>
-              </select>
-              <label>Insurance Type:</label>
-              <select
-                value={policyData.insuranceType}
-                onChange={(e) => setPolicyData({ ...policyData, insuranceType: e.target.value })}
-                className="form-control"
-              >
-                <option value="">Select Type</option>
-                {insuranceTypes.map((type) => (
-                  <option key={type} value={type}>
-                    {type} Insurance
-                  </option>
-                ))}
-              </select>
-              <button type="button" onClick={handleCreateOrEditPolicy} className="btn btn-success mt-3">
-                {isEditing ? 'Update Policy' : 'Create Policy'}
-              </button>
-              <button type="button" onClick={() => setShowModal(false)} className="btn btn-secondary mt-3">Cancel</button>
+              <div className="form-group">
+                <label>Coverage Amount:</label>
+                <input
+                  type="number"
+                  value={policyData.coverageAmount}
+                  onChange={(e) => setPolicyData({ ...policyData, coverageAmount: Number(e.target.value) })}
+                />
+              </div>
+              <div className="form-group">
+                <label>Risk Factors (Optional):</label>
+                <input
+                  type="text"
+                  placeholder="Enter risk factors separated by commas"
+                  value={policyData.riskFactors.join(', ')}
+                  onChange={(e) => setPolicyData({ ...policyData, riskFactors: e.target.value.split(',').map(f => f.trim()) })}
+                />
+              </div>
+              <div className="form-group">
+                <label>Availability:</label>
+                <select
+                  value={policyData.isAvailable}
+                  onChange={(e) => setPolicyData({ ...policyData, isAvailable: e.target.value === 'true' })}
+                >
+                  <option value="true">Available</option>
+                  <option value="false">Not Available</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label>Insurance Type:</label>
+                <select
+                  value={policyData.insuranceType}
+                  onChange={(e) => setPolicyData({ ...policyData, insuranceType: e.target.value })}
+                >
+                  <option value="">Select Type</option>
+                  {insuranceTypes.map((type) => (
+                    <option key={type} value={type}>
+                      {type} Insurance
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="form-buttons">
+                <button type="button" onClick={handleCreateOrEditPolicy} className="btn btn-success mt-3">
+                  {isEditing ? 'Update Policy' : 'Create Policy'}
+                </button>
+                <button type="button" onClick={() => setShowModal(false)} className="btn btn-secondary mt-3">Cancel</button>
+              </div>
             </form>
           </div>
         </div>
@@ -207,7 +215,7 @@ const ManagePolicies = () => {
             <tr key={policy._id}>
               <td>{policy.policyName}</td>
               <td>{policy.description}</td>
-              <td>{policy.premiumType}</td> {/* Display premium type */}
+              <td>{policy.premiumType}</td>
               <td>{policy.premiumType === 'Fixed' ? `R ${policy.premiumAmount?.toLocaleString()}` : 'Calculated based on risk assessment'}</td>
               <td>R {policy.coverageAmount?.toLocaleString()}</td>
               <td>{policy.insuranceType || 'N/A'}</td>

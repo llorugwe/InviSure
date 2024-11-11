@@ -28,6 +28,7 @@ header a:hover, footer a:hover {
   background-color: #008080; /* Teal for primary buttons */
   color: white;
   border: none;
+  transition: background-color 0.3s ease;
 }
 
 .btn-primary:hover {
@@ -38,6 +39,7 @@ header a:hover, footer a:hover {
   background-color: #e27d60; /* Coral for secondary actions */
   color: white;
   border: none;
+  transition: background-color 0.3s ease;
 }
 
 .btn-secondary:hover {
@@ -70,7 +72,7 @@ header a:hover, footer a:hover {
 }
 
 .welcome-image {
-  width: 90%; /* Adjusted size for better layout */
+  width: 100%;
   max-width: 300px;
   border-radius: 8px;
 }
@@ -117,16 +119,40 @@ header a:hover, footer a:hover {
   margin-top: 2rem;
 }
 
+/* Insurance Plan Card */
 .card {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   border: none;
   border-radius: 8px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  background-color: #ffffff;
+  padding: 1rem;
+}
+
+/* Hover effect for the card */
+.card:hover {
+  transform: scale(1.05); /* Slightly enlarges the card */
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Adds a more pronounced shadow */
 }
 
 .card-title {
   font-size: 1.2rem;
+  color: #004f6d; /* Match header color for consistency */
+  font-family: 'Merriweather', serif;
 }
 
 .card p {
   color: #666;
+}
+
+/* Card Button */
+.card .btn-info {
+  background-color: #008080; /* Match primary button color */
+  color: white;
+  transition: background-color 0.3s ease;
+  font-weight: bold;
+}
+
+.card .btn-info:hover {
+  background-color: #006666; /* Darken slightly on hover */
 }

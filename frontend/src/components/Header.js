@@ -1,16 +1,41 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import './Header.css';
 
 const Header = () => {
+  const [isScrolled, setIsScrolled] = useState(false);
   const isAuthenticated = !!localStorage.getItem('accessToken');
-  const role = localStorage.getItem('role'); // Ensure this matches the 'role' key set on login
+  const role = localStorage.getItem('role');
+
+  const handleLogout = () => {
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('role');
+    window.location.href = '/';
+  };
+
+  useEffect(() => {
+    // Add scroll event listener
+    const handleScroll = () => {
+      if (window.scrollY > 50) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-light bg-light">
+    <nav className={`navbar fixed-top navbar-expand-lg ${isScrolled ? 'scrolled' : ''}`}>
       <div className="container-fluid">
         <Link className="navbar-brand" to="/">InviSure</Link>
+        <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span className="navbar-toggler-icon"></span>
+        </button>
         <div className="collapse navbar-collapse" id="navbarNav">
-          <ul className="navbar-nav me-auto mb-2 mb-lg-0">
+          <ul className="navbar-nav ms-auto">
             {isAuthenticated && role === 'policyholder' && (
               <>
                 <li className="nav-item">
@@ -43,11 +68,7 @@ const Header = () => {
               </>
             ) : (
               <li className="nav-item">
-                <button className="btn btn-link nav-link" onClick={() => {
-                  localStorage.removeItem('accessToken');
-                  localStorage.removeItem('role');
-                  window.location.href = '/';
-                }}>
+                <button className="btn btn-link nav-link" onClick={handleLogout}>
                   Logout
                 </button>
               </li>
