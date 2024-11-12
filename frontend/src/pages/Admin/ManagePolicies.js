@@ -203,7 +203,6 @@ const ManagePolicies = () => {
           <tr>
             <th>Name</th>
             <th>Description</th>
-            <th>Premium Type</th>
             <th>Premium Amount</th>
             <th>Coverage Amount</th>
             <th>Type</th>
@@ -215,7 +214,6 @@ const ManagePolicies = () => {
             <tr key={policy._id}>
               <td>{policy.policyName}</td>
               <td>{policy.description}</td>
-              <td>{policy.premiumType}</td>
               <td>{policy.premiumType === 'Fixed' ? `R ${policy.premiumAmount?.toLocaleString()}` : 'Calculated based on risk assessment'}</td>
               <td>R {policy.coverageAmount?.toLocaleString()}</td>
               <td>{policy.insuranceType || 'N/A'}</td>

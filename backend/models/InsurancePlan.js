@@ -16,16 +16,17 @@ const insurancePlanSchema = new mongoose.Schema({
     },
     premiumAmount: { 
         type: Number, 
-        min: [0, 'Premium amount must be a positive number']
+        min: [0, 'Premium amount must be a positive number'],
+        // This should be conditionally set based on `premiumType`
     },
     premiumType: { 
         type: String, 
-        enum: ['Fixed', 'Dynamic'], // Ensure only valid types are set
+        enum: ['Fixed', 'Dynamic'], 
         required: true 
     },
     startDate: { 
         type: Date, 
-        default: Date.now  // Optional: defaults to current date if not provided
+        default: Date.now  
     },
     endDate: Date,
     status: {
@@ -45,9 +46,8 @@ const insurancePlanSchema = new mongoose.Schema({
     insuranceType: { 
         type: String, 
         required: true,
-        enum: ['Health', 'Life', 'Car', 'Home', 'Travel'], // Add all valid types here
+        enum: ['Health', 'Life', 'Car', 'Home', 'Travel']
     },
-    // Array to store references to User purchases
     purchases: [{
         userId: {
             type: mongoose.Schema.Types.ObjectId,
@@ -66,19 +66,18 @@ const insurancePlanSchema = new mongoose.Schema({
     }]
 });
 
-// Static method to get active plans (for admin and user retrieval)
+// Static methods for retrieving active and available plans
 insurancePlanSchema.statics.getActivePlans = function () {
     return this.find({ status: 'active' });
 };
 
-// Static method to get available plans for public access
 insurancePlanSchema.statics.getAvailablePolicies = function () {
     return this.find({ isAvailable: true }).select(
         'policyName description premiumAmount premiumType coverageAmount insuranceType isAvailable'
     );
 };
 
-// Instance method to update the purchase status of a specific user's plan
+// Instance method to update purchase status for a specific user
 insurancePlanSchema.methods.updatePurchaseStatus = function (userId, isActive) {
     const purchase = this.purchases.find(purchase => purchase.userId.equals(userId));
     if (purchase) {
@@ -87,18 +86,16 @@ insurancePlanSchema.methods.updatePurchaseStatus = function (userId, isActive) {
     }
 };
 
-// Static method for creating a new insurance plan (for admin functionality)
+// Static methods for CRUD operations
 insurancePlanSchema.statics.createPlan = function (planData) {
     const plan = new this(planData);
     return plan.save();
 };
 
-// Static method for updating an existing insurance plan (for admin functionality)
 insurancePlanSchema.statics.updatePlan = function (planId, updateData) {
     return this.findByIdAndUpdate(planId, updateData, { new: true });
 };
 
-// Static method for deleting an insurance plan (for admin functionality)
 insurancePlanSchema.statics.deletePlan = function (planId) {
     return this.findByIdAndDelete(planId);
 };

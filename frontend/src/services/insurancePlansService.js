@@ -31,10 +31,11 @@ export const getInsurancePlans = async () => {
   }
 };
 
-// Admin function to fetch all policies
+// Admin function to fetch all policies with full details
 export const getAllPoliciesAdmin = async () => {
   try {
     const response = await api.get('/admin/policies');
+    // Ensure the backend route returns details such as policyName, description, premiumAmount, coverageAmount, and insuranceType
     return response.data;
   } catch (error) {
     console.error('Error fetching all policies for admin:', error);

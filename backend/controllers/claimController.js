@@ -54,8 +54,9 @@ const getAllClaims = async (req, res) => {
     }
     try {
         const claims = await Claim.find()
-            .populate('user', 'name email')
-            .populate('policy', 'name basePremium')
+            .populate('user', 'name email') // Policyholder details
+            .populate('policy', 'policyName') // Policy details
+            .select('description amount status submittedAt') // Include `amount` here
             .sort({ submittedAt: -1 });
         res.status(200).json(claims);
     } catch (err) {

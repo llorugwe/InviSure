@@ -68,10 +68,7 @@ const registerAdmin = async (req, res) => {
 const createInsurancePlan = async (req, res) => {
     const { policyName, description, premiumType, premiumAmount, coverageAmount, riskFactors, isAvailable, insuranceType } = req.body;
     
-    console.log('Received data in createInsurancePlan:', req.body);
-
     if (!policyName || !description || !premiumType || !coverageAmount || !insuranceType) {
-        console.error('Missing required fields:', { policyName, description, premiumType, coverageAmount, insuranceType });
         return res.status(400).json({ message: 'All required fields must be provided' });
     }
 
@@ -177,7 +174,7 @@ const getAllClaims = async (req, res) => {
     try {
         const claims = await Claim.find()
             .populate({ path: 'userId', select: 'name email', model: 'User', as: 'user' }) // Populate `userId` as `user`
-            .populate({ path: 'policyId', select: 'policyName coverageAmount', model: 'Policy', as: 'policy' }) // Populate `policyId` as `policy`
+            .populate({ path: 'policyId', select: 'policyName coverageAmount insuranceType', model: 'Policy', as: 'policy' }) // Populate `policyId` as `policy`
             .sort({ submittedAt: -1 });
 
         res.status(200).json(claims);
@@ -190,8 +187,8 @@ const getAllClaims = async (req, res) => {
 // Admin function to retrieve all available insurance policies
 const getAvailablePolicies = async (req, res) => {
     try {
-        const policies = await InsurancePlan.find({ status: 'active', isAvailable: true }).select(
-            'policyName description premiumAmount coverageAmount'
+        const policies = await InsurancePlan.find({ isAvailable: true }).select(
+            'policyName description premiumType premiumAmount coverageAmount insuranceType'
         );
         res.status(200).json(policies);
     } catch (error) {
