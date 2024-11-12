@@ -4,6 +4,7 @@
   max-width: 800px;
   margin: 0 auto;
   padding: 20px;
+  text-align: center; /* Center-align all text within the container */
 }
 
 h1 {
@@ -28,6 +29,7 @@ h1 {
   border: 1px solid #f5c6cb;
   border-radius: 5px;
   margin-bottom: 1rem;
+  text-align: center;
 }
 
 .mt-4, .mt-5 {
@@ -38,6 +40,7 @@ h3 {
   font-size: 1.5rem;
   color: #555;
   margin-bottom: 0.5rem;
+  text-align: center; /* Center-align section titles */
 }
 
 ul {
@@ -50,6 +53,7 @@ ul {
 ul li {
   padding: 10px;
   border-bottom: 1px solid #ddd;
+  text-align: center; /* Center-align list items */
 }
 
 ul li:last-child {
@@ -73,9 +77,10 @@ a:hover {
 
 .actions {
   display: flex;
-  justify-content: space-between;
+  justify-content: center; /* Center actions horizontally */
   gap: 10px;
-  flex-direction: column;
+  flex-direction: row; /* Arrange actions in a row */
+  margin-top: 1rem;
 }
 
 .actions a {
@@ -84,6 +89,7 @@ a:hover {
   padding: 10px 15px;
   border-radius: 5px;
   text-align: center;
+  width: 200px; /* Set a fixed width for consistency */
 }
 
 .actions a:hover {
@@ -104,12 +110,36 @@ a:hover {
   color: #d9534f;
 }
 
+.plan-group {
+  text-align: center; /* Center-align plan groups */
+  margin-bottom: 2rem;
+}
+
+.plan-group h4 {
+  color: #555;
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.plan-group .d-flex {
+  justify-content: center; /* Center-align cards within each plan group */
+  flex-wrap: wrap;
+}
+
+/* Center the card content */
 .card {
-  width: 18rem;
+  width: 100%; /* Full-width cards inside a centered container */
+  max-width: 20rem; /* Set max width for cards to prevent excessive stretching */
+  margin: 0 auto; /* Center each card */
   border: 1px solid #ddd;
   border-radius: 5px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center-align card content */
 }
 
 .card:hover {
@@ -119,6 +149,7 @@ a:hover {
 
 .card .card-body {
   padding: 15px;
+  text-align: center; /* Center-align text inside the card */
 }
 
 .card-title {
@@ -130,15 +161,4 @@ a:hover {
 .card-text {
   color: #666;
   font-size: 0.9rem;
-}
-
-.plan-group {
-  margin-bottom: 2rem;
-}
-
-.plan-group h4 {
-  color: #555;
-  font-size: 1.2rem;
-  font-weight: bold;
-  margin-bottom: 1rem;
 }

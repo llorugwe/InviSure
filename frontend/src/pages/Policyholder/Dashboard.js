@@ -4,7 +4,7 @@ import { getPremiums, getUserPolicies } from '../../services/policiesService';
 import { getPolicyPaymentDetails } from '../../services/paymentsService';
 import { Link } from 'react-router-dom';
 import UserPoliciesList from '../../components/UserPolicies/UserPoliciesList';
-import './Dashboard.css'; // Make sure to create and link the Dashboard.css file
+import './Dashboard.css';
 
 const Dashboard = () => {
   const [premiumInfo, setPremiumInfo] = useState(null);
@@ -14,6 +14,7 @@ const Dashboard = () => {
   const [error, setError] = useState(null);
 
   const userRole = localStorage.getItem('role');
+  const userName = localStorage.getItem('userName'); // Retrieve user’s name
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -48,7 +49,9 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard-container container mt-5">
-      <h2 className="dashboard-title mb-4">{userRole === 'admin' ? 'Admin Dashboard' : 'User Dashboard'}</h2>
+      <h2 className="dashboard-title mb-4">
+        {userRole === 'admin' ? 'Admin Dashboard' : `Welcome, ${userName}!`}
+      </h2>
       {error && <p className="alert alert-danger">{error}</p>}
 
       <div className="dashboard-grid">

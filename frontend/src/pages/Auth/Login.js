@@ -15,14 +15,17 @@ const Login = () => {
       const response = await login(email, password);
       console.log("Login response:", response);
 
-      const { role, accessToken } = response;
+      // Assuming the response contains 'role', 'accessToken', and 'name'
+      const { role, accessToken, name } = response;
 
-      // Store token and role in localStorage
+      // Store token, role, and user's name in localStorage
       localStorage.setItem('accessToken', accessToken);
       localStorage.setItem('role', role);
+      localStorage.setItem('userName', name); // Store the user's name for display on the dashboard
 
       console.log("Role stored:", role);
       console.log("Access token stored:", accessToken);
+      console.log("User name stored:", name);
 
       // Redirect based on stored path or default to user role-based dashboard
       const redirectPath = localStorage.getItem('redirectPath') || (role === "admin" ? '/admin' : '/dashboard');
