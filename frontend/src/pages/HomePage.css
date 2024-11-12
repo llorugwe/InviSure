@@ -183,9 +183,44 @@ header a:hover, footer a:hover {
 
 /* Footer Styling */
 .footer {
-  text-align: center;
-  padding: 2rem 0;
-  font-size: 0.9rem;
-  color: #666;
-  background-color: #004f6d;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.5rem 0;
+  background-color: #004f6d; /* Navy blue background */
+  color: #f8f9fa;
+  font-size: 1rem;
+}
+
+.footer p {
+  margin: 0;
+  padding: 0;
+}
+
+.footer a {
+  color: #f8f9fa;
+  text-decoration: none;
+  font-weight: 500;
+  margin: 0 0.8rem;
+  transition: color 0.3s ease;
+}
+
+.footer a:hover {
+  color: #e27d60; /* Coral color on hover */
+}
+
+.footer .social-icons {
+  margin-top: 1rem;
+}
+
+.footer .social-icons a {
+  color: #f8f9fa;
+  font-size: 1.2rem;
+  margin: 0 0.5rem;
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.footer .social-icons a:hover {
+  color: #e27d60;
+  transform: scale(1.2); /* Slight zoom effect on hover */
 }

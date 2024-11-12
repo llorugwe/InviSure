@@ -1,0 +1,115 @@
+/* Common Page Styling */
+.page-container {
+  max-width: 800px;
+  margin: 80px auto 0 auto; /* Adds top margin to avoid overlap with the header */
+  padding: 2rem;
+  font-family: 'Lato', sans-serif;
+  color: #333;
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.page-container:hover {
+  transform: scale(1.01); /* Slight lift effect */
+}
+
+/* Heading Styles */
+.page-container h2 {
+  color: #004f6d; /* Navy blue color for headings */
+  font-size: 2.8rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  font-family: 'Merriweather', serif;
+  font-weight: bold;
+}
+
+.page-container h3 {
+  color: #333;
+  font-size: 1.8rem;
+  margin-top: 2rem;
+  border-bottom: 2px solid #e27d60; /* Coral underlining */
+  padding-bottom: 0.5rem;
+  font-weight: bold;
+}
+
+/* Text and List Styling */
+.page-container p,
+.page-container ul {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  margin-top: 1.5rem;
+  color: #555;
+}
+
+.page-container ul {
+  padding-left: 1.5rem;
+}
+
+.page-container ul li {
+  margin-top: 0.5rem;
+}
+
+/* Contact Us Specific Styling */
+.contact-info {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background-color: #eaf2f8;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.contact-info ul {
+  list-style: none;
+  padding: 0;
+}
+
+.contact-info ul li {
+  display: flex;
+  align-items: center;
+  margin-top: 0.8rem;
+}
+
+.contact-info ul li strong {
+  width: 120px;
+  color: #004f6d;
+}
+
+/* Link Styling */
+.page-container a {
+  color: #004f6d;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.page-container a:hover {
+  color: #e27d60;
+  text-decoration: underline;
+}
+
+/* Footer Section Styling */
+.page-footer {
+  text-align: center;
+  margin-top: 3rem;
+  font-size: 1rem;
+  color: #666;
+  padding: 1.5rem;
+  background-color: #f0f4f8; /* Soft background color */
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.page-footer a {
+  color: #004f6d;
+  text-decoration: none;
+  margin: 0 0.5rem;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.page-footer a:hover {
+  color: #e27d60;
+  text-decoration: underline;
+}
