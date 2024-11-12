@@ -1,0 +1,64 @@
+/* src/components/Dashboard.css */
+
+.dashboard-container {
+  max-width: 1200px; /* Increased width for the container to make cards wider */
+  margin: 0 auto;
+}
+
+.dashboard-title {
+  text-align: center;
+  font-size: 2rem; /* Slightly reduced font size for the title */
+  color: #004f6d;
+  margin-bottom: 1.5rem;
+}
+
+.dashboard-card {
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 25px; /* Adjusted padding for a balanced look */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 25px; /* Adds space between cards */
+  overflow: hidden;
+  width: 100%; /* Ensures cards take up the full container width */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.dashboard-card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+.dashboard-section-title {
+  font-size: 1.5rem; /* Reduced section title font size slightly */
+  color: #333;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.dashboard-card p, .dashboard-card .table {
+  font-size: 1rem; /* Reduced font size slightly for content */
+  line-height: 1.5;
+}
+
+.table th, .table td {
+  text-align: center;
+  font-size: 1rem; /* Smaller font size in tables */
+  word-wrap: break-word;
+}
+
+.text-center .btn {
+  margin-top: 10px;
+  padding: 12px 20px; /* Keeps button padding balanced */
+}
+
+.btn-primary {
+  background-color: #008080;
+  color: white;
+  border: none;
+}
+
+.btn-secondary {
+  background-color: #e27d60;
+  color: white;
+  border: none;
+}
