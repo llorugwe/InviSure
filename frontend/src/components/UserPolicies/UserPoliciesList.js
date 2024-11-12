@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { getUserPolicies } from '../../services/policiesService';
-import PolicyDetails from './PolicyDetails';
 import './UserPoliciesList.css';
 
 const UserPoliciesList = () => {
@@ -27,7 +26,13 @@ const UserPoliciesList = () => {
       <div className="policies-grid">
         {policies.map((policy) => (
           <div key={policy._id} className="policy-card">
-            <PolicyDetails policy={policy} />
+            <h5>{policy.policyName}</h5>
+            <p><strong>Description:</strong> {policy.description}</p>
+            <p><strong>Coverage:</strong> R {policy.coverageAmount?.toLocaleString()}</p>
+            <p><strong>Premium:</strong> R {policy.premiumAmount?.toLocaleString()}</p>
+            <p><strong>Start Date:</strong> {policy.startDate ? new Date(policy.startDate).toLocaleDateString() : 'N/A'}</p>
+            <p><strong>End Date:</strong> {policy.endDate ? new Date(policy.endDate).toLocaleDateString() : 'N/A'}</p>
+            <p><strong>Payment Status:</strong> {policy.paymentStatus || 'N/A'}</p>
           </div>
         ))}
       </div>

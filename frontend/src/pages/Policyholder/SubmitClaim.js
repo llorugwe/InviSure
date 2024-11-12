@@ -4,7 +4,7 @@ import { submitClaim, getAvailablePolicies } from '../../services/claimsService'
 const SubmitClaim = () => {
   const [policies, setPolicies] = useState([]);
   const [claim, setClaim] = useState({
-    policyId: '',  // Change to policyId to match backend expectations
+    policyId: '',
     description: '',
     amount: '',
   });
@@ -71,7 +71,7 @@ const SubmitClaim = () => {
               ))}
             </select>
           </div>
-          <div className="form-group">
+          <div className="form-group mt-3">
             <label htmlFor="description">Description:</label>
             <textarea
               className="form-control"
@@ -83,8 +83,8 @@ const SubmitClaim = () => {
               required
             />
           </div>
-          <div className="form-group">
-            <label htmlFor="amount">Amount (optional):</label>
+          <div className="form-group mt-3">
+            <label htmlFor="amount">Amount (in Rands):</label>
             <input
               type="number"
               className="form-control"
@@ -92,7 +92,8 @@ const SubmitClaim = () => {
               name="amount"
               value={claim.amount}
               onChange={handleChange}
-              placeholder="Enter claim amount in USD"
+              placeholder="Enter claim amount in Rands"
+              min="0"
             />
           </div>
           <button type="submit" className="btn btn-primary mt-3">

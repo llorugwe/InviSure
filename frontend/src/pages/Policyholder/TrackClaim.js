@@ -25,19 +25,21 @@ const TrackClaim = () => {
         <table className="table table-striped table-bordered mt-4">
           <thead>
             <tr>
-              <th>Policy Number</th>
+              <th>Policy Name</th>
               <th>Description</th>
               <th>Amount</th>
               <th>Status</th>
+              <th>Date Submitted</th> {/* New column for Date Submitted */}
             </tr>
           </thead>
           <tbody>
             {claims.map((claim) => (
               <tr key={claim._id}>
-                <td>{claim.policyNumber}</td>
+                <td>{claim.policyId?.policyName || 'N/A'}</td>
                 <td>{claim.description}</td>
-                <td>{claim.amount}</td>
+                <td>R {claim.amount?.toLocaleString()}</td>
                 <td>{claim.status}</td>
+                <td>{new Date(claim.submittedAt).toLocaleDateString()}</td> {/* Format Date Submitted */}
               </tr>
             ))}
           </tbody>

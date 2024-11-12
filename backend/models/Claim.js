@@ -15,6 +15,10 @@ const claimSchema = new mongoose.Schema({
         type: String, 
         required: true 
     }, // Details about the claim
+    amount: { 
+        type: Number, 
+        required: true 
+    }, // Amount claimed by the policyholder
     status: { 
         type: String, 
         enum: ['submitted', 'in review', 'approved', 'rejected'], // Extended status options

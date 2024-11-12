@@ -41,9 +41,7 @@ const Header = () => {
                 <li className="nav-item">
                   <Link className="nav-link" to="/dashboard">Dashboard</Link>
                 </li>
-                <li className="nav-item">
-                  <Link className="nav-link" to="/my-policies">My Policies</Link>
-                </li>
+                {/* Removed the "My Policies" link here */}
                 <li className="nav-item">
                   <Link className="nav-link" to="/submit-claim">Submit Claim</Link>
                 </li>

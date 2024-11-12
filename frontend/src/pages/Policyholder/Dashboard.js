@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react'; 
 import { getClaims, getPendingClaims } from '../../services/claimsService';
 import { getPremiums, getUserPolicies } from '../../services/policiesService';
 import { getPolicyPaymentDetails } from '../../services/paymentsService';
@@ -105,7 +105,7 @@ const Dashboard = () => {
           <table className="table">
             <thead>
               <tr>
-                <th>Claim ID</th>
+                <th>Policy</th>
                 <th>Description</th>
                 <th>Amount</th>
                 <th>Status</th>
@@ -114,12 +114,12 @@ const Dashboard = () => {
             </thead>
             <tbody>
               {claimHistory.map((claim) => (
-                <tr key={claim.id}>
-                  <td>{claim.id}</td>
+                <tr key={claim._id}>
+                  <td>{claim.policyId?.policyName || 'N/A'}</td> {/* Updated to show Policy Name */}
                   <td>{claim.description}</td>
                   <td>R {claim.amount?.toLocaleString()}</td>
                   <td>{claim.status}</td>
-                  <td>{new Date(claim.submissionDate).toLocaleDateString()}</td>
+                  <td>{claim.submittedAt ? new Date(claim.submittedAt).toLocaleDateString() : 'N/A'}</td> {/* Corrected Submission Date */}
                 </tr>
               ))}
             </tbody>
