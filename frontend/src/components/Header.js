@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react'; 
 import { Link } from 'react-router-dom';
 import './Header.css';
 
@@ -41,7 +41,6 @@ const Header = () => {
                 <li className="nav-item">
                   <Link className="nav-link" to="/dashboard">Dashboard</Link>
                 </li>
-                {/* Removed the "My Policies" link here */}
                 <li className="nav-item">
                   <Link className="nav-link" to="/submit-claim">Submit Claim</Link>
                 </li>
@@ -51,9 +50,17 @@ const Header = () => {
               </>
             )}
             {isAuthenticated && role === 'admin' && (
-              <li className="nav-item">
-                <Link className="nav-link" to="/admin">Admin Dashboard</Link>
-              </li>
+              <>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/admin">Admin Dashboard</Link>
+                </li>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/admin/manage-claims">Manage Claims</Link>
+                </li>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/admin/manage-policies">Manage Policies</Link>
+                </li>
+              </>
             )}
             {!isAuthenticated ? (
               <>

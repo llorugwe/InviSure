@@ -1,10 +1,12 @@
 // src/pages/Admin/AdminDashboard.js
-import React, { useState, useEffect } from 'react'; 
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { FaFileAlt, FaClipboardList } from 'react-icons/fa'; // Importing icons
 import { getTotalPolicies, getPendingClaims, getTotalClaims } from '../../services/claimsService';
 import { getPublicInsurancePlans } from '../../services/insurancePlansService';
 
 const AdminDashboard = () => {
+  const [adminName, setAdminName] = useState('Admin'); // Default name
   const [totalPolicies, setTotalPolicies] = useState(0);
   const [pendingClaims, setPendingClaims] = useState(0);
   const [totalClaims, setTotalClaims] = useState(0);
@@ -12,6 +14,12 @@ const AdminDashboard = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    // Retrieve the admin's name from local storage
+    const storedAdminName = localStorage.getItem('adminName'); // Ensure adminName is saved during login
+    if (storedAdminName) {
+      setAdminName(storedAdminName);
+    }
+
     // Fetch key metrics and grouped plans when the component mounts
     const fetchMetricsAndPlans = async () => {
       try {
@@ -44,8 +52,8 @@ const AdminDashboard = () => {
 
   return (
     <div className="container mt-5">
-      <h1>Admin Dashboard</h1>
-      <p>Manage insurance policies and claims here.</p>
+      <h1>Welcome, {adminName}!</h1>
+      <p className="dashboard-subtitle">Manage insurance policies and claims here.</p>
 
       {error && <p className="alert alert-danger">{error}</p>}
 
@@ -58,7 +66,6 @@ const AdminDashboard = () => {
         </ul>
       </div>
 
-      {/* Grouped Insurance Plans */}
       <div className="mt-5">
         <h3>Insurance Plans by Type</h3>
         {Object.keys(groupedPlans).length > 0 ? (
@@ -90,14 +97,19 @@ const AdminDashboard = () => {
         )}
       </div>
 
-      <div className="mt-4">
+      {/* Actions with Icons */}
+      <div className="mt-4 actions">
         <h3>Actions</h3>
         <ul>
           <li>
-            <Link to="/admin/manage-claims">Manage Claims</Link> {/* Link to claims management */}
+            <Link to="/admin/manage-claims">
+              <FaFileAlt style={{ marginRight: '8px' }} /> Manage Claims
+            </Link>
           </li>
           <li>
-            <Link to="/admin/manage-policies">Manage Policies</Link> {/* Link to policies management */}
+            <Link to="/admin/manage-policies">
+              <FaClipboardList style={{ marginRight: '8px' }} /> Manage Policies
+            </Link>
           </li>
         </ul>
       </div>

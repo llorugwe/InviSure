@@ -77,10 +77,10 @@ const HomePage = () => {
         {['Health', 'Life', 'Car', 'Home', 'Travel'].map((type) => (
           <div key={type} className="plan-group mb-5">
             <h3 className="text-center">{type} Insurance</h3>
-            <div className="d-flex justify-content-around flex-wrap">
+            <div className="card-container">
               {groupedPlans[type].length > 0 ? (
                 groupedPlans[type].map((plan) => (
-                  <div key={plan._id} className="card m-2" style={{ width: '18rem' }}>
+                  <div key={plan._id} className="card">
                     <div className="card-body">
                       <h5 className="card-title">{plan.policyName}</h5>
                       <p className="card-text">{plan.description}</p>

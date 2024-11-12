@@ -113,10 +113,23 @@ header a:hover, footer a:hover {
   color: #004f6d;
 }
 
+.plan-group {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
 .plan-group h3 {
   font-size: 1.5rem;
   color: #333;
-  margin-top: 2rem;
+  margin-top: 1.5rem;
+}
+
+/* Insurance Plan Card Container */
+.card-container {
+  display: flex;
+  justify-content: center; /* Center-align the card container */
+  gap: 1rem; /* Space between cards */
+  flex-wrap: wrap;
 }
 
 /* Insurance Plan Card */
@@ -127,12 +140,19 @@ header a:hover, footer a:hover {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   background-color: #ffffff;
   padding: 1rem;
+  width: 100%;
+  max-width: 280px;
+  text-align: center; /* Center-align text inside each card */
 }
 
 /* Hover effect for the card */
 .card:hover {
-  transform: scale(1.05); /* Slightly enlarges the card */
+  transform: scale(1.03); /* Slightly enlarges the card */
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Adds a more pronounced shadow */
+}
+
+.card-body {
+  text-align: center; /* Center-align the content inside the card body */
 }
 
 .card-title {
@@ -143,6 +163,8 @@ header a:hover, footer a:hover {
 
 .card p {
   color: #666;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
 }
 
 /* Card Button */
@@ -151,8 +173,19 @@ header a:hover, footer a:hover {
   color: white;
   transition: background-color 0.3s ease;
   font-weight: bold;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
 }
 
 .card .btn-info:hover {
   background-color: #006666; /* Darken slightly on hover */
+}
+
+/* Footer Styling */
+.footer {
+  text-align: center;
+  padding: 2rem 0;
+  font-size: 0.9rem;
+  color: #666;
+  background-color: #004f6d;
 }

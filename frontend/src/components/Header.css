@@ -7,6 +7,7 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
   height: 60px; /* Set a fixed height for the header */
+  z-index: 10; /* Ensure header is always on top */
 }
 
 .navbar.scrolled {
@@ -18,32 +19,62 @@
   font-size: 1.3rem;
   color: #e7f5f8;
   font-weight: bold;
+  transition: color 0.3s ease, transform 0.3s ease;
 }
 
 .navbar-brand:hover {
   color: #e27d60;
   text-decoration: none;
+  transform: scale(1.05); /* Slightly larger on hover */
 }
 
 .nav-link {
   color: #e7f5f8;
   font-size: 1rem;
   margin-left: 1rem;
-  transition: color 0.3s ease;
+  transition: color 0.3s ease, transform 0.3s ease;
 }
 
 .nav-link:hover {
   color: #e27d60;
+  transform: scale(1.05); /* Slightly larger on hover */
 }
 
 .navbar-toggler-icon {
   background-color: #e7f5f8;
+  border-radius: 2px;
+  transition: transform 0.3s ease;
+}
+
+.navbar-toggler-icon:hover {
+  transform: rotate(90deg); /* Rotate on hover for a visual cue */
 }
 
 .nav-item .btn-link {
   color: #e7f5f8;
+  transition: color 0.3s ease;
 }
 
 .nav-item .btn-link:hover {
   color: #e27d60;
+}
+
+@media (max-width: 768px) {
+  .navbar {
+    padding: 0.7rem 1rem; /* Slightly larger padding for touch devices */
+  }
+  
+  .navbar-brand {
+    font-size: 1.2rem; /* Reduce brand font size for mobile */
+  }
+
+  .nav-link {
+    font-size: 0.9rem; /* Slightly smaller links for mobile */
+    margin-left: 0; /* Remove left margin on mobile */
+  }
+
+  .navbar-nav {
+    text-align: center;
+    margin-top: 10px;
+  }
 }

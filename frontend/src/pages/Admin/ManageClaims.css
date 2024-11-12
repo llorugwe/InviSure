@@ -3,7 +3,7 @@
 .manage-claims-container {
   padding: 20px;
   max-width: 1200px;
-  margin: 0 auto;
+  margin: 60px auto 0; /* Adds top margin to position it below the header */
   font-family: Arial, sans-serif;
 }
 
