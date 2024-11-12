@@ -54,10 +54,11 @@ const getAllClaims = async (req, res) => {
     }
     try {
         const claims = await Claim.find()
-            .populate('user', 'name email') // Policyholder details
-            .populate('policy', 'policyName') // Policy details
-            .select('description amount status submittedAt') // Include `amount` here
+            .populate('userId', 'name email') // Populate Policyholder details
+            .populate('policyId', 'policyName') // Populate Policy details
+            .select('description amount status submittedAt userId policyId') // Include all required fields
             .sort({ submittedAt: -1 });
+            
         res.status(200).json(claims);
     } catch (err) {
         console.error('Error retrieving all claims:', err);

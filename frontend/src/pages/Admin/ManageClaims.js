@@ -49,11 +49,21 @@ const ManageClaims = () => {
           <tbody>
             {claims.map((claim) => (
               <tr key={claim._id}>
-                <td>{claim.user?.name || 'No Name Available'}</td>
-                <td>{claim.policy?.policyName || 'No Policy Name'}</td>
+                {/* Display the populated Policyholder name */}
+                <td>{claim.userId?.name || 'No Name Available'}</td>
+                
+                {/* Display the populated Policy name */}
+                <td>{claim.policyId?.policyName || 'No Policy Name'}</td>
+                
                 <td>{claim.description}</td>
-                <td>{claim.policy?.coverageAmount ? `R ${claim.policy.coverageAmount.toLocaleString()}` : 'Amount Not Available'}</td>
-                <td>{claim.status}</td>
+                
+                {/* Display the claim amount submitted by the policyholder */}
+                <td>{claim.amount ? `R ${claim.amount.toLocaleString()}` : 'Amount Not Available'}</td>
+                
+                <td className={`status-cell ${claim.status}`}>
+                  {claim.status}
+                </td>
+                
                 <td className="action-buttons">
                   <button
                     onClick={() => handleStatusChange(claim._id, 'approved')}
