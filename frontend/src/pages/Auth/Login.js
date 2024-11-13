@@ -1,6 +1,8 @@
+// src/pages/Auth/Login.js
 import React, { useState } from 'react';
 import { login } from '../../services/claimsService';
 import { useNavigate, Link } from 'react-router-dom';
+import '../../styles/Auth.css'; // Import the shared CSS file
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -11,34 +13,23 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      console.log("Attempting to log in...");
       const response = await login(email, password);
-      console.log("Login response:", response);
-
-      // Assuming the response contains 'role', 'accessToken', and 'name'
       const { role, accessToken, name } = response;
 
-      // Store token, role, and user's name in localStorage
       localStorage.setItem('accessToken', accessToken);
       localStorage.setItem('role', role);
-      localStorage.setItem('userName', name); // Store the user's name for display on the dashboard
+      localStorage.setItem('userName', name);
 
-      console.log("Role stored:", role);
-      console.log("Access token stored:", accessToken);
-      console.log("User name stored:", name);
-
-      // Redirect based on stored path or default to user role-based dashboard
       const redirectPath = localStorage.getItem('redirectPath') || (role === "admin" ? '/admin' : '/dashboard');
-      localStorage.removeItem('redirectPath'); // Clear the path after use
+      localStorage.removeItem('redirectPath');
       navigate(redirectPath);
     } catch (err) {
-      console.error("Login failed:", err);
       setError('Login failed. Please check your email and password.');
     }
   };
 
   return (
-    <div className="container mt-5">
+    <div className="auth-container">
       <h2>Login</h2>
       {error && <p className="alert alert-danger">{error}</p>}
       <form onSubmit={handleSubmit}>
@@ -64,9 +55,12 @@ const Login = () => {
         </div>
         <button type="submit" className="btn btn-primary mt-3">Login</button>
       </form>
+
       <p className="mt-3">
-        Forgot your password?{' '}
-        <Link to="/forgot-password">Reset it here</Link>
+        Forgot your password? <Link to="/forgot-password" className="btn-link">Reset it here</Link>
+      </p>
+      <p className="mt-2">
+        Don’t have an account? <Link to="/register" className="btn-link">Register here</Link>
       </p>
     </div>
   );

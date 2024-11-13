@@ -1,0 +1,59 @@
+/* src/styles/Auth.css */
+
+/* Centered container styling for login/register cards */
+.auth-container {
+    max-width: 500px;
+    margin: 6rem auto 2rem auto; /* Adds space from the top to prevent overlap */
+    padding: 2rem;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    font-family: 'Lato', sans-serif;
+  }
+  
+  /* Style adjustments for form labels and input fields */
+  .auth-container h2 {
+    color: #004f6d;
+    text-align: center;
+  }
+  
+  .auth-container .form-group label {
+    color: #333;
+    font-weight: bold;
+  }
+  
+  .auth-container .form-control {
+    padding: 0.5rem;
+    border-radius: 4px;
+  }
+  
+  .auth-container .btn-primary {
+    width: 100%;
+    background-color: #008080;
+    border: none;
+    transition: background-color 0.3s ease;
+  }
+  
+  .auth-container .btn-primary:hover {
+    background-color: #006666;
+  }
+  
+  .auth-container p {
+    text-align: center;
+    margin-top: 1rem;
+  }
+
+  /* Link styling for login/register prompt */
+.btn-link {
+    background: none;
+    color: #008080;
+    font-weight: bold;
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+  
+  .btn-link:hover {
+    color: #006666;
+    text-decoration: underline;
+  }
+  
